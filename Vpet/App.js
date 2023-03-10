@@ -13,6 +13,7 @@ export default function App() {
       <StatusBar style="auto" />
       <View>
         <Image
+          contentPosition={"left"}
           source={sprite}
           style={{
             width: 100,
