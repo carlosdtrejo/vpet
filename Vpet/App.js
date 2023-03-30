@@ -16,6 +16,7 @@ import { useEffect, useState } from "react";
 let sprite = require("./eatingSprite2.gif");
 let sprite2 = require("./animatedSprite2.gif");
 let statsImage = require("./statsImage.gif");
+let actualSprite = require("./sprite.gif");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -31,20 +32,64 @@ export default function App() {
   const [bPower, setBPower] = useState(0);
   const [careMistakes, setCareMistakes] = useState(0);
   const [inmortality, setInmortality] = useState(true);
+  const [walk, setWalk] = useState(280);
+  const [direction, setDirection] = useState(true); //true for left false for right
 
   const [statsPage, setStatsPage] = useState(0);
 
   useEffect(() => {
     checkOrientation();
-    console.log(statsPage);
+    walking();
+    // console.log(statsPage);
+    console.log(walk);
+    if (walk <= 20) {
+      setDirection(false);
+    } else if (walk >= 280) {
+      setDirection(true);
+    }
     const subscription = ScreenOrientation.addOrientationChangeListener(
       handleOrientationChange
     );
     return () => {
       ScreenOrientation.removeOrientationChangeListeners(subscription);
     };
-  }, [statsPage]);
+  }, [statsPage, walk, direction]);
 
+  const walking = async () => {
+    if (direction && walk >= 40) {
+      await setTimeout(() => {
+        setWalk(walk - 20);
+
+        // else if (walk - 20 <= 20) {
+        //   setWalk(walk + 20);
+        // } else if (walk >= 120) {
+        //   let path = Math.floor(Math.random() * 2);
+        //   console.log(path);
+        //   if (path > 0) {
+        //     setWalk(walk + 20);
+        //   } else {
+        //     setWalk(walk - 20);
+        //   }
+        // }
+      }, 1000);
+    } else if (!direction && walk <= 260) {
+      await setTimeout(() => {
+        setWalk(walk + 20);
+
+        // else if (walk - 20 <= 20) {
+        //   setWalk(walk + 20);
+        // } else if (walk >= 120) {
+        //   let path = Math.floor(Math.random() * 2);
+        //   console.log(path);
+        //   if (path > 0) {
+        //     setWalk(walk + 20);
+        //   } else {
+        //     setWalk(walk - 20);
+        //   }
+        // }
+      }, 1000);
+    }
+  };
   const checkOrientation = async () => {
     const orientation = await ScreenOrientation.getOrientationAsync();
     setOrientation(orientation);
@@ -85,10 +130,16 @@ export default function App() {
             />
           </View>
           {statsPage % 8 === 0 ? (
-            <ImageBackground
-              source={sprite}
-              style={styles.image}
-            ></ImageBackground>
+            <View style={styles.container}>
+              <ImageBackground source={statsImage} style={styles.image}>
+                <Image
+                  style={styles.sprite(walk)}
+                  source={actualSprite}
+                  placeholder={blurhash}
+                  contentFit="cover"
+                />
+              </ImageBackground>
+            </View>
           ) : (
             <React.Fragment>
               {statsPage === 1 && (
@@ -223,11 +274,19 @@ const styles = StyleSheet.create({
   },
   image: {
     resizeMode: "cover",
-    width: 400,
-    height: 280,
+    width: 450,
+    height: 290,
     flex: 1,
     justifyContent: "center",
   },
+  sprite: (walk) => ({
+    left: walk,
+    width: 100,
+    height: 100,
+    position: "absolute",
+    bottom: 30,
+    right: 0,
+  }),
   imageLandscape: {
     resizeMode: "cover",
     width: 700,
