@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
+import * as Font from "expo-font";
 
 //const sprite = require("./animatedSprite4.gif");
 
@@ -40,6 +41,9 @@ export default function App() {
   useEffect(() => {
     checkOrientation();
     walking();
+    Font.loadAsync({
+      ARCADE_N: require("./assets/fonts/PublicPixel.ttf"),
+    });
     // console.log(statsPage);
     console.log(walk);
     if (walk <= 20) {
@@ -334,12 +338,19 @@ const styles = StyleSheet.create({
     marginTop: 50,
     position: "absolute",
     zIndex: 1,
+    alignItems: "flex-start",
+    fontFamily: "ARCADE_N",
+    fontSize: 35,
+    textAlign: "left",
   },
 
   statsText2: {
     paddingTop: 100,
     position: "absolute",
     zIndex: 1,
+    fontFamily: "ARCADE_N",
+    fontSize: 35,
+    textAlign: "left",
   },
 });
 
