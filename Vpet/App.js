@@ -148,7 +148,10 @@ export default function App() {
             <React.Fragment>
               {statsPage === 1 && (
                 <React.Fragment>
-                  <Text style={styles.statsText}>AGE: {age}</Text>
+                  <Text style={styles.statsText}>
+                    {`AGE: \t\t\t\t\t\t\t\t\t\t`}
+                    {age}
+                  </Text>
                   <Text style={styles.statsText2}>WEIGHT: {weight}</Text>
                 </React.Fragment>
               )}
@@ -271,16 +274,16 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 2,
     backgroundColor: "#fff",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "center",
   },
   image: {
     resizeMode: "cover",
     width: 450,
     height: 290,
-    flex: 1,
+    flex: 2,
     justifyContent: "center",
   },
   sprite: (walk) => ({
@@ -301,7 +304,7 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   buttonContainer: {
-    flex: 1,
+    flex: 2,
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-evenly",
@@ -319,7 +322,7 @@ const styles = StyleSheet.create({
     marginBottom: -40,
   },
   lowerButtonContainer: {
-    flex: 1,
+    flex: 2,
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-evenly",
@@ -335,21 +338,22 @@ const styles = StyleSheet.create({
     marginBottom: 25,
   },
   statsText: {
-    marginTop: 50,
+    paddingLeft: 30,
     position: "absolute",
     zIndex: 1,
-    alignItems: "flex-start",
+    alignItems: "center",
     fontFamily: "ARCADE_N",
-    fontSize: 35,
+    fontSize: 30,
     textAlign: "left",
   },
 
   statsText2: {
+    paddingLeft: 30,
     paddingTop: 100,
     position: "absolute",
     zIndex: 1,
     fontFamily: "ARCADE_N",
-    fontSize: 35,
+    fontSize: 30,
     textAlign: "left",
   },
 });
