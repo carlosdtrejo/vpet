@@ -11,13 +11,17 @@ import {
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
 import * as Font from "expo-font";
+import { Dimensions } from "react-native";
 
 //const sprite = require("./animatedSprite4.gif");
 
 let sprite = require("./eatingSprite2.gif");
 let sprite2 = require("./animatedSprite2.gif");
-let statsImage = require("./statsImage.gif");
+let statsImage = require("./statsImage.png");
 let actualSprite = require("./sprite.gif");
+let fullHealth = require("./fullHealth7.png");
+let digiPower = require("./bpower3.png");
+let careMstk = require("./careMistakes.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -111,7 +115,7 @@ export default function App() {
             <Button
               onPress={() =>
                 setStatsPage(
-                  statsPage / 8 === 1 ? statsPage * 0 + 1 : statsPage + 1
+                  statsPage / 9 === 1 ? statsPage * 0 + 1 : statsPage + 1
                 )
               }
               title="Stats"
@@ -133,7 +137,7 @@ export default function App() {
               color="#000000a0"
             />
           </View>
-          {statsPage % 8 === 0 ? (
+          {statsPage % 9 === 0 ? (
             <View style={styles.container}>
               <ImageBackground source={statsImage} style={styles.image}>
                 <Image
@@ -149,7 +153,7 @@ export default function App() {
               {statsPage === 1 && (
                 <React.Fragment>
                   <Text style={styles.statsText}>
-                    {`AGE: \t\t\t\t\t\t\t\t\t\t`}
+                    {`AGE:   `}
                     {age}
                   </Text>
                   <Text style={styles.statsText2}>WEIGHT: {weight}</Text>
@@ -157,34 +161,44 @@ export default function App() {
               )}
               {statsPage === 2 && (
                 <React.Fragment>
-                  <Text style={styles.statsText}>HUNGER: {hunger}</Text>
+                  <Text style={styles.textOverImagePortrait}>HUNGER:</Text>
+                  <Image source={fullHealth} style={styles.healthImage}></Image>
                 </React.Fragment>
               )}
               {statsPage === 3 && (
                 <React.Fragment>
-                  <Text style={styles.statsText}>STRENGHT: {strength}</Text>
+                  <Text style={styles.textOverImagePortrait}>STRENGHT:</Text>
+                  <Image source={fullHealth} style={styles.healthImage}></Image>
                 </React.Fragment>
               )}
               {statsPage === 4 && (
                 <React.Fragment>
-                  <Text style={styles.statsText}>B-POWER: {bPower}</Text>
+                  <Text style={styles.textOverImagePortrait}>MUSCLE:</Text>
+                  <Image source={fullHealth} style={styles.healthImage}></Image>
                 </React.Fragment>
               )}
               {statsPage === 5 && (
                 <React.Fragment>
-                  <Text style={styles.statsText}>
-                    CARE MISTAKES: {careMistakes}
-                  </Text>
+                  <Text style={styles.textOverImagePortrait}>B-POWER:</Text>
+                  <Image source={digiPower} style={styles.healthImage}></Image>
                 </React.Fragment>
               )}
               {statsPage === 6 && (
+                <React.Fragment>
+                  <Text style={styles.textOverImagePortrait}>
+                    CARE MISTAKES:
+                  </Text>
+                  <Image source={careMstk} style={styles.healthImage}></Image>
+                </React.Fragment>
+              )}
+              {statsPage === 7 && (
                 <React.Fragment>
                   <Text style={styles.statsText}>
                     Ranked Battles: {careMistakes}
                   </Text>
                 </React.Fragment>
               )}
-              {statsPage === 7 && (
+              {statsPage === 8 && (
                 <React.Fragment>
                   <Text style={styles.statsText}>
                     Unranked Battles: {careMistakes}
@@ -308,7 +322,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-end",
     justifyContent: "space-evenly",
-    width: 400,
+    position: "relative",
+    width: Dimensions.get("window").width,
     paddingTop: 70,
     marginBottom: -38,
     zIndex: 1,
@@ -326,8 +341,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "flex-start",
     justifyContent: "space-evenly",
-    width: 400,
-    marginBottom: 50,
+    width: Dimensions.get("window").width,
+    marginBottom: 20,
   },
   lowerButtonContainerLandscape: {
     flex: 1,
@@ -355,6 +370,22 @@ const styles = StyleSheet.create({
     fontFamily: "ARCADE_N",
     fontSize: 30,
     textAlign: "left",
+  },
+  healthImage: {
+    position: "absolute",
+    width: 330,
+    height: 170,
+    zIndex: 1,
+    marginLeft: 30,
+    //backgroundColor: "red",
+  },
+  textOverImagePortrait: {
+    paddingLeft: 60,
+    paddingBottom: 50,
+    position: "absolute",
+    zIndex: 1,
+    fontFamily: "ARCADE_N",
+    fontSize: 30,
   },
 });
 
