@@ -7,6 +7,7 @@ import {
   View,
   Image,
   Button,
+  TouchableOpacity,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
@@ -18,10 +19,20 @@ import { Dimensions } from "react-native";
 let sprite = require("./eatingSprite2.gif");
 let sprite2 = require("./animatedSprite2.gif");
 let statsImage = require("./statsImage.png");
-let actualSprite = require("./sprite.gif");
+let actualSprite = require("./resolutionTest.gif");
 let fullHealth = require("./fullHealth7.png");
 let digiPower = require("./bpower3.png");
 let careMstk = require("./careMistakes.png");
+let digiStats = require("./digiStats16.png");
+let digiFood = require("./digiFood4.png");
+let digiTrain = require("./digiTrain.png");
+let digiFight = require("./digiFight.png");
+let digiPoop = require("./digiPoop4.png");
+let digiAid = require("./digiAid.png");
+let digiLight = require("./digiLight14.png");
+let digiAlert = require("./digiAlert.png");
+let digiMeal = require("./digiMeal2.png");
+let digiPill = require("./digiPill.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -29,7 +40,7 @@ const blurhash =
 export default function App() {
   const [orientation, setOrientation] = useState(1);
   const [name, setName] = useState("PetMon");
-  const [age, setAge] = useState(-1);
+  const [age, setAge] = useState(0);
   const [weight, setWeight] = useState("0");
   const [currSprite, setSprite] = useState(sprite);
   const [hunger, setHunger] = useState(0);
@@ -37,6 +48,7 @@ export default function App() {
   const [bPower, setBPower] = useState(0);
   const [careMistakes, setCareMistakes] = useState(0);
   const [inmortality, setInmortality] = useState(true);
+  const [foodMenu, setFoodMenu] = useState(false);
   const [walk, setWalk] = useState(280);
   const [direction, setDirection] = useState(true); //true for left false for right
 
@@ -112,7 +124,7 @@ export default function App() {
       {orientation === 1 ? (
         <React.Fragment>
           <View style={styles.buttonContainer}>
-            <Button
+            {/* <Button
               onPress={() =>
                 setStatsPage(
                   statsPage / 9 === 1 ? statsPage * 0 + 1 : statsPage + 1
@@ -120,32 +132,73 @@ export default function App() {
               }
               title="Stats"
               color="#000000a0"
-            />
-            <Button
+            /> */}
+            <TouchableOpacity
+              onPress={() =>
+                setStatsPage(
+                  statsPage / 9 === 1 ? statsPage * 0 + 1 : statsPage + 1
+                )
+              }
+              title="Stats"
+              color="#000000a0"
+            >
+              <Image source={digiStats} />
+            </TouchableOpacity>
+            {/* <Button
               onPress={onPressLearnMore}
               title="Click Me"
               color="#000000a0"
-            />
-            <Button
-              onPress={onPressLearnMore}
-              title="Click Me"
+            /> */}
+            <TouchableOpacity
+              onPress={() => setFoodMenu(!foodMenu)}
+              title="Stats"
               color="#000000a0"
-            />
-            <Button
+            >
+              <Image source={digiFood} />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={onPressLearnMore}
-              title="Click Me"
+              title="Stats"
               color="#000000a0"
-            />
+            >
+              <Image source={digiTrain} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onPressLearnMore}
+              title="Stats"
+              color="#000000a0"
+            >
+              <Image source={digiFight} />
+            </TouchableOpacity>
           </View>
           {statsPage % 9 === 0 ? (
             <View style={styles.container}>
               <ImageBackground source={statsImage} style={styles.image}>
-                <Image
-                  style={styles.sprite(walk)}
-                  source={actualSprite}
-                  placeholder={blurhash}
-                  contentFit="cover"
-                />
+                {foodMenu ? (
+                  <View style={styles.foodChoice}>
+                    <TouchableOpacity
+                      onPress={onPressLearnMore}
+                      title="Stats"
+                      color="#000000a0"
+                    >
+                      <Image source={digiMeal} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={onPressLearnMore}
+                      title="Stats"
+                      color="#000000a0"
+                    >
+                      <Image source={digiPill} />
+                    </TouchableOpacity>
+                  </View>
+                ) : (
+                  <Image
+                    style={styles.sprite(walk)}
+                    source={actualSprite}
+                    placeholder={blurhash}
+                    contentFit="cover"
+                  />
+                )}
               </ImageBackground>
             </View>
           ) : (
@@ -153,10 +206,13 @@ export default function App() {
               {statsPage === 1 && (
                 <React.Fragment>
                   <Text style={styles.statsText}>
-                    {`AGE:   `}
+                    AGE:{"\t\t\t\t\t\t\t\t\t\t\t\t"}
                     {age}
                   </Text>
-                  <Text style={styles.statsText2}>WEIGHT: {weight}</Text>
+                  <Text style={styles.statsText2}>
+                    WEIGHT:{"\t\t\t\t"}
+                    {weight}
+                  </Text>
                 </React.Fragment>
               )}
               {statsPage === 2 && (
@@ -194,14 +250,20 @@ export default function App() {
               {statsPage === 7 && (
                 <React.Fragment>
                   <Text style={styles.statsText}>
-                    Ranked Battles: {careMistakes}
+                    {"\n"}
+                    Ranked Battles: {"\n\n"}
+                    W: {careMistakes} {"\n"}
+                    L: {careMistakes}
                   </Text>
                 </React.Fragment>
               )}
               {statsPage === 8 && (
                 <React.Fragment>
                   <Text style={styles.statsText}>
-                    Unranked Battles: {careMistakes}
+                    {"\n"}
+                    Unranked Battles: {"\n\n"}
+                    W: {careMistakes} {"\n"}
+                    L: {careMistakes}
                   </Text>
                 </React.Fragment>
               )}
@@ -212,26 +274,34 @@ export default function App() {
             </React.Fragment>
           )}
           <View style={styles.lowerButtonContainer}>
-            <Button
+            <TouchableOpacity
               onPress={onPressLearnMore}
-              title="Click Me"
+              title="Stats"
               color="#000000a0"
-            />
-            <Button
+            >
+              <Image source={digiPoop} />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={onPressLearnMore}
-              title="Click Me"
+              title="Stats"
               color="#000000a0"
-            />
-            <Button
+            >
+              <Image source={digiAid} />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={onPressLearnMore}
-              title="Click Me"
+              title="Stats"
               color="#000000a0"
-            />
-            <Button
+            >
+              <Image source={digiLight} />
+            </TouchableOpacity>
+            <TouchableOpacity
               onPress={onPressLearnMore}
-              title="Click Me"
+              title="Stats"
               color="#000000a0"
-            />
+            >
+              <Image source={digiAlert} />
+            </TouchableOpacity>
           </View>
         </React.Fragment>
       ) : (
@@ -387,6 +457,13 @@ const styles = StyleSheet.create({
     fontFamily: "ARCADE_N",
     fontSize: 30,
   },
+  foodChoice: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    marginRight: 70,
+  },
+  foodItem: {},
 });
 
 const onPressLearnMore = () => {
