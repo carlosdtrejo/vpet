@@ -33,6 +33,20 @@ let digiLight = require("./digiLight14.png");
 let digiAlert = require("./digiAlert.png");
 let digiMeal = require("./digiMeal2.png");
 let digiPill = require("./digiPill.png");
+let digiPill1 = require("./digiPill1.png");
+let digiPill2 = require("./digiPill2.png");
+let digiPill3 = require("./digiPill3.png");
+
+let walkLeft = require("./charizardWalkLeft.gif");
+let walkRight = require("./charizardWalkRight.gif");
+let walkLeft1 = require("./walkLeft1.png");
+let walkLeft2 = require("./walkLeft2.png");
+let walkRight1 = require("./walkRight1.png");
+let walkRight2 = require("./walkRight2.png");
+let digiFoodBite1 = require("./digiFoodBite1.png");
+let digiFoodBite2 = require("./digiFoodBite2.png");
+let digiFoodBite3 = require("./digiFoodBite3.png");
+let digiOpenMouth = require("./digiMouthOpen.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -51,12 +65,22 @@ export default function App() {
   const [foodMenu, setFoodMenu] = useState(false);
   const [walk, setWalk] = useState(280);
   const [direction, setDirection] = useState(true); //true for left false for right
+  const [feeding, setFeeding] = useState(false);
+  const [walkingSprite, setWalkingSprite] = useState(walkLeft1);
+  const [step, setStep] = useState(0);
+  const [bite, setBite] = useState(0);
+  const [eatingSprite, setEatingSprite] = useState(walkLeft1);
+  const [foodIcon, setFoodIcon] = useState(digiFood);
+  const [foodItem, setFoodItem] = useState(true); //true for chicken false for pill
 
   const [statsPage, setStatsPage] = useState(0);
 
   useEffect(() => {
     checkOrientation();
     walking();
+    if (feeding) {
+      eat();
+    }
     Font.loadAsync({
       ARCADE_N: require("./assets/fonts/PublicPixel.ttf"),
     });
@@ -73,12 +97,58 @@ export default function App() {
     return () => {
       ScreenOrientation.removeOrientationChangeListeners(subscription);
     };
-  }, [statsPage, walk, direction]);
+  }, [
+    statsPage,
+    walk,
+    direction,
+    walkingSprite,
+    step,
+    feeding,
+    bite,
+    eatingSprite,
+    foodIcon,
+    foodItem,
+  ]);
+
+  const eat = async () => {
+    await setTimeout(() => {
+      if (bite % 2 === 0) {
+        setEatingSprite(walkLeft1);
+        if (bite === 2) {
+          if (foodItem) setFoodIcon(digiFoodBite1);
+          else setFoodIcon(digiPill1);
+        }
+        if (bite === 4) {
+          if (foodItem) setFoodIcon(digiFoodBite2);
+          else setFoodIcon(digiPill2);
+        }
+        if (bite === 6) {
+          if (foodItem) setFoodIcon(digiFoodBite3);
+          else setFoodIcon(digiPill3);
+        }
+      } else {
+        setEatingSprite(digiOpenMouth);
+      }
+      if (bite === 7) {
+        setBite(0);
+        setFeeding(false);
+        setFoodIcon(digiFood);
+      }
+      setBite(bite + 1);
+    }, 300);
+  };
 
   const walking = async () => {
     if (direction && walk >= 40) {
       await setTimeout(() => {
         setWalk(walk - 20);
+        if (step == 1) {
+          setWalkingSprite(walkLeft2);
+          setStep(0);
+        } else {
+          setWalkingSprite(walkLeft1);
+          setStep(1);
+        }
 
         // else if (walk - 20 <= 20) {
         //   setWalk(walk + 20);
@@ -95,6 +165,13 @@ export default function App() {
     } else if (!direction && walk <= 260) {
       await setTimeout(() => {
         setWalk(walk + 20);
+        if (step == 1) {
+          setWalkingSprite(walkRight2);
+          setStep(0);
+        } else {
+          setWalkingSprite(walkRight1);
+          setStep(1);
+        }
 
         // else if (walk - 20 <= 20) {
         //   setWalk(walk + 20);
@@ -134,11 +211,12 @@ export default function App() {
               color="#000000a0"
             /> */}
             <TouchableOpacity
-              onPress={() =>
+              onPress={() => {
                 setStatsPage(
                   statsPage / 9 === 1 ? statsPage * 0 + 1 : statsPage + 1
-                )
-              }
+                );
+                setFoodMenu(false);
+              }}
               title="Stats"
               color="#000000a0"
             >
@@ -150,7 +228,10 @@ export default function App() {
               color="#000000a0"
             /> */}
             <TouchableOpacity
-              onPress={() => setFoodMenu(!foodMenu)}
+              onPress={() => {
+                setFoodMenu(!foodMenu);
+                setFeeding(false);
+              }}
               title="Stats"
               color="#000000a0"
             >
@@ -176,25 +257,51 @@ export default function App() {
               <ImageBackground source={statsImage} style={styles.image}>
                 {foodMenu ? (
                   <View style={styles.foodChoice}>
-                    <TouchableOpacity
-                      onPress={onPressLearnMore}
-                      title="Stats"
-                      color="#000000a0"
-                    >
-                      <Image source={digiMeal} />
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      onPress={onPressLearnMore}
-                      title="Stats"
-                      color="#000000a0"
-                    >
-                      <Image source={digiPill} />
-                    </TouchableOpacity>
+                    {!feeding ? (
+                      <React.Fragment>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setFeeding(true);
+                            setFoodItem(true);
+                          }}
+                          title="Stats"
+                          color="#000000a0"
+                        >
+                          <Image source={digiMeal} />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setFeeding(true);
+                            setFoodItem(false);
+                            setFoodIcon(digiPill);
+                          }}
+                          title="Stats"
+                          color="#000000a0"
+                        >
+                          <Image source={digiPill} />
+                        </TouchableOpacity>
+                      </React.Fragment>
+                    ) : (
+                      <React.Fragment>
+                        <Image
+                          style={styles.foodPlace}
+                          source={foodIcon}
+                          placeholder={blurhash}
+                          contentFit="cover"
+                        />
+                        <Image
+                          style={styles.eatingPlace}
+                          source={eatingSprite}
+                          placeholder={blurhash}
+                          contentFit="cover"
+                        />
+                      </React.Fragment>
+                    )}
                   </View>
                 ) : (
                   <Image
                     style={styles.sprite(walk)}
-                    source={actualSprite}
+                    source={walkingSprite}
                     placeholder={blurhash}
                     contentFit="cover"
                   />
@@ -365,8 +472,8 @@ const styles = StyleSheet.create({
   },
   image: {
     resizeMode: "cover",
-    width: 450,
-    height: 290,
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height / 2.7,
     flex: 2,
     justifyContent: "center",
   },
@@ -378,6 +485,20 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 0,
   }),
+  eatingPlace: {
+    width: 100,
+    height: 100,
+    position: "absolute",
+    bottom: -70,
+    right: 90,
+  },
+  foodPlace: {
+    width: 70,
+    height: 70,
+    position: "absolute",
+    bottom: -30,
+    left: 80,
+  },
   imageLandscape: {
     resizeMode: "cover",
     width: 700,
@@ -461,9 +582,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
-    marginRight: 70,
+    // marginRight: 70,
+    marginTop: 30,
   },
-  foodItem: {},
 });
 
 const onPressLearnMore = () => {
