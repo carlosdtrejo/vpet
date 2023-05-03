@@ -76,6 +76,8 @@ export default function App() {
   const [foodItem, setFoodItem] = useState(true); //true for chicken false for pill
   const [cleanPoop, setCleanPoop] = useState(false);
   const [poop, setPoop] = useState(true);
+  const [lightOff, setLightOff] = useState(false);
+
   const [poopLocation, setPoopLocation] = useState(20);
 
   const [digiSpot, setDigiSpot] = useState(0);
@@ -125,6 +127,7 @@ export default function App() {
     foodItem,
     cleanPoop,
     waveLocation,
+    poopLocation,
   ]);
 
   const moveWave = async () => {
@@ -251,6 +254,7 @@ export default function App() {
                   statsPage / 9 === 1 ? statsPage * 0 + 1 : statsPage + 1
                 );
                 setFoodMenu(false);
+                setBite(0);
               }}
               title="Stats"
               color="#000000a0"
@@ -266,6 +270,8 @@ export default function App() {
               onPress={() => {
                 setFoodMenu(!foodMenu);
                 setFeeding(false);
+                setBite(0);
+                setCleanPoop(false);
               }}
               title="Stats"
               color="#000000a0"
@@ -298,6 +304,8 @@ export default function App() {
                           onPress={() => {
                             setFeeding(true);
                             setFoodItem(true);
+                            setFoodIcon(digiMeal);
+                            setBite(0);
                           }}
                           title="Stats"
                           color="#000000a0"
@@ -309,6 +317,7 @@ export default function App() {
                             setFeeding(true);
                             setFoodItem(false);
                             setFoodIcon(digiPill);
+                            setBite(0);
                           }}
                           title="Stats"
                           color="#000000a0"
@@ -358,19 +367,25 @@ export default function App() {
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    <Image
-                      style={styles.sprite(walk)}
-                      source={walkingSprite}
-                      placeholder={blurhash}
-                      contentFit="cover"
-                    />
-                    {poop && (
-                      <Image
-                        style={styles.poopPlace}
-                        source={digitalPoop}
-                        placeholder={blurhash}
-                        contentFit="cover"
-                      />
+                    {lightOff ? (
+                      <View style={styles.sleep} />
+                    ) : (
+                      <React.Fragment>
+                        <Image
+                          style={styles.sprite(walk)}
+                          source={walkingSprite}
+                          placeholder={blurhash}
+                          contentFit="cover"
+                        />
+                        {poop && (
+                          <Image
+                            style={styles.poopPlace}
+                            source={digitalPoop}
+                            placeholder={blurhash}
+                            contentFit="cover"
+                          />
+                        )}
+                      </React.Fragment>
                     )}
                   </React.Fragment>
                 )}
@@ -453,6 +468,10 @@ export default function App() {
               onPress={() => {
                 setCleanPoop(!cleanPoop);
                 setDigiSpot(walk);
+                setFoodMenu(false);
+                setFeeding(false);
+                setBite(0);
+                setStatsPage(9);
               }}
               title="Stats"
               color="#000000a0"
@@ -467,7 +486,14 @@ export default function App() {
               <Image source={digiAid} />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={onPressLearnMore}
+              onPress={() => {
+                setLightOff(!lightOff);
+                setFoodMenu(false);
+                setFeeding(false);
+                setBite(0);
+                setStatsPage(9);
+                setCleanPoop(false);
+              }}
               title="Stats"
               color="#000000a0"
             >
@@ -683,6 +709,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     left: 20,
+  },
+  sleep: {
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height / 4,
+    backgroundColor: "black",
+    position: "absolute",
+    bottom: 12,
+    zIndex: 1,
   },
 });
 
