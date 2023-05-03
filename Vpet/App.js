@@ -47,6 +47,8 @@ let digiFoodBite1 = require("./digiFoodBite1.png");
 let digiFoodBite2 = require("./digiFoodBite2.png");
 let digiFoodBite3 = require("./digiFoodBite3.png");
 let digiOpenMouth = require("./digiMouthOpen.png");
+let digitalPoop = require("./digitalPoop.gif");
+let digiWave = require("./digiWave.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -72,12 +74,25 @@ export default function App() {
   const [eatingSprite, setEatingSprite] = useState(walkLeft1);
   const [foodIcon, setFoodIcon] = useState(digiFood);
   const [foodItem, setFoodItem] = useState(true); //true for chicken false for pill
+  const [cleanPoop, setCleanPoop] = useState(false);
+  const [poop, setPoop] = useState(true);
+  const [poopLocation, setPoopLocation] = useState(20);
+
+  const [digiSpot, setDigiSpot] = useState(0);
+  const [waveLocation, setWaveLocation] = useState(
+    Dimensions.get("window").width
+  );
 
   const [statsPage, setStatsPage] = useState(0);
 
   useEffect(() => {
     checkOrientation();
-    walking();
+    if (!cleanPoop) {
+      walking();
+    } else {
+      moveWave();
+    }
+
     if (feeding) {
       eat();
     }
@@ -108,7 +123,27 @@ export default function App() {
     eatingSprite,
     foodIcon,
     foodItem,
+    cleanPoop,
+    waveLocation,
   ]);
+
+  const moveWave = async () => {
+    await setTimeout(() => {
+      if (waveLocation < 0) {
+        setPoop(false);
+        setCleanPoop(false);
+        setWaveLocation(Dimensions.get("window").width);
+      } else {
+        setWaveLocation(waveLocation - 20);
+        if (waveLocation - 100 <= digiSpot) {
+          setDigiSpot(waveLocation - 100);
+        }
+        if (waveLocation - 100 <= poopLocation) {
+          setPoopLocation(waveLocation - 100);
+        }
+      }
+    });
+  };
 
   const eat = async () => {
     await setTimeout(() => {
@@ -298,13 +333,46 @@ export default function App() {
                       </React.Fragment>
                     )}
                   </View>
+                ) : cleanPoop ? (
+                  <React.Fragment>
+                    <Image
+                      style={styles.digiSpot(digiSpot)}
+                      source={walkingSprite}
+                      placeholder={blurhash}
+                      contentFit="cover"
+                    />
+                    {poop && (
+                      <Image
+                        style={styles.poopPlac1(poopLocation)}
+                        source={digitalPoop}
+                        placeholder={blurhash}
+                        contentFit="cover"
+                      />
+                    )}
+                    <Image
+                      style={styles.digiWave(waveLocation)}
+                      source={digiWave}
+                      placeholder={blurhash}
+                      contentFit="cover"
+                    />
+                  </React.Fragment>
                 ) : (
-                  <Image
-                    style={styles.sprite(walk)}
-                    source={walkingSprite}
-                    placeholder={blurhash}
-                    contentFit="cover"
-                  />
+                  <React.Fragment>
+                    <Image
+                      style={styles.sprite(walk)}
+                      source={walkingSprite}
+                      placeholder={blurhash}
+                      contentFit="cover"
+                    />
+                    {poop && (
+                      <Image
+                        style={styles.poopPlace}
+                        source={digitalPoop}
+                        placeholder={blurhash}
+                        contentFit="cover"
+                      />
+                    )}
+                  </React.Fragment>
                 )}
               </ImageBackground>
             </View>
@@ -382,7 +450,10 @@ export default function App() {
           )}
           <View style={styles.lowerButtonContainer}>
             <TouchableOpacity
-              onPress={onPressLearnMore}
+              onPress={() => {
+                setCleanPoop(!cleanPoop);
+                setDigiSpot(walk);
+              }}
               title="Stats"
               color="#000000a0"
             >
@@ -485,6 +556,27 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 0,
   }),
+  digiSpot: (digiSpot) => ({
+    left: digiSpot,
+    width: 100,
+    height: 100,
+    position: "absolute",
+    bottom: 30,
+    right: 0,
+  }),
+  digiWave: (waveLocation) => ({
+    left: waveLocation,
+    width: 100,
+    height: 100,
+    position: "absolute",
+    bottom: 30,
+    right: 0,
+  }),
+  poopPlac1: (poopLocation) => ({
+    left: poopLocation,
+    position: "absolute",
+    bottom: 30,
+  }),
   eatingPlace: {
     width: 100,
     height: 100,
@@ -584,6 +676,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     // marginRight: 70,
     marginTop: 30,
+  },
+  poopPlace: {
+    // width: 100,
+    // height: 100,
+    position: "absolute",
+    bottom: 30,
+    left: 20,
   },
 });
 
