@@ -36,6 +36,8 @@ let digiPill = require("./digiPill.png");
 let digiPill1 = require("./digiPill1.png");
 let digiPill2 = require("./digiPill2.png");
 let digiPill3 = require("./digiPill3.png");
+let digiSleep = require("./digiSleep2.gif");
+let digiSleepLightsOn = require("./digiSleep1.gif");
 
 let walkLeft = require("./charizardWalkLeft.gif");
 let walkRight = require("./charizardWalkRight.gif");
@@ -77,6 +79,8 @@ export default function App() {
   const [cleanPoop, setCleanPoop] = useState(false);
   const [poop, setPoop] = useState(true);
   const [lightOff, setLightOff] = useState(false);
+  const [currentTime, setCurrenTime] = useState(new Date());
+  const [isSleeping, setIsSleeping] = useState(false);
 
   const [poopLocation, setPoopLocation] = useState(20);
 
@@ -88,6 +92,12 @@ export default function App() {
   const [statsPage, setStatsPage] = useState(0);
 
   useEffect(() => {
+    if (currentTime.getHours() >= 8 && currentTime.getHours() < 22) {
+      setIsSleeping(false);
+    } else {
+      setIsSleeping(true);
+    }
+
     checkOrientation();
     if (!cleanPoop) {
       walking();
@@ -102,7 +112,7 @@ export default function App() {
       ARCADE_N: require("./assets/fonts/PublicPixel.ttf"),
     });
     // console.log(statsPage);
-    console.log(walk);
+    //console.log(walk);
     if (walk <= 20) {
       setDirection(false);
     } else if (walk >= 280) {
@@ -268,6 +278,9 @@ export default function App() {
             /> */}
             <TouchableOpacity
               onPress={() => {
+                if (isSleeping) {
+                  return;
+                }
                 setFoodMenu(!foodMenu);
                 setFeeding(false);
                 setBite(0);
@@ -368,7 +381,25 @@ export default function App() {
                 ) : (
                   <React.Fragment>
                     {lightOff ? (
-                      <View style={styles.sleep} />
+                      <View style={styles.sleep}>
+                        {isSleeping && (
+                          <Image
+                            style={styles.sleepingPlace}
+                            source={digiSleep}
+                            placeholder={blurhash}
+                            contentFit="cover"
+                          />
+                        )}
+                      </View>
+                    ) : isSleeping ? (
+                      <React.Fragment>
+                        <Image
+                          style={styles.sleepingPlace}
+                          source={digiSleepLightsOn}
+                          placeholder={blurhash}
+                          contentFit="cover"
+                        />
+                      </React.Fragment>
                     ) : (
                       <React.Fragment>
                         <Image
@@ -466,6 +497,9 @@ export default function App() {
           <View style={styles.lowerButtonContainer}>
             <TouchableOpacity
               onPress={() => {
+                if (isSleeping) {
+                  return;
+                }
                 setCleanPoop(!cleanPoop);
                 setDigiSpot(walk);
                 setFoodMenu(false);
@@ -616,6 +650,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -30,
     left: 80,
+  },
+  sleepingPlace: {
+    position: "absolute",
+    bottom: 30,
+    left: Dimensions.get("window").width / 2.5,
   },
   imageLandscape: {
     resizeMode: "cover",
