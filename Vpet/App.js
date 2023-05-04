@@ -391,23 +391,25 @@ export default function App() {
                           />
                         )}
                       </View>
-                    ) : isSleeping ? (
-                      <React.Fragment>
-                        <Image
-                          style={styles.sleepingPlace}
-                          source={digiSleepLightsOn}
-                          placeholder={blurhash}
-                          contentFit="cover"
-                        />
-                      </React.Fragment>
                     ) : (
                       <React.Fragment>
-                        <Image
-                          style={styles.sprite(walk)}
-                          source={walkingSprite}
-                          placeholder={blurhash}
-                          contentFit="cover"
-                        />
+                        {isSleeping ? (
+                          <React.Fragment>
+                            <Image
+                              style={styles.sleepingPlace}
+                              source={digiSleepLightsOn}
+                              placeholder={blurhash}
+                              contentFit="cover"
+                            />
+                          </React.Fragment>
+                        ) : (
+                          <Image
+                            style={styles.sprite(walk)}
+                            source={walkingSprite}
+                            placeholder={blurhash}
+                            contentFit="cover"
+                          />
+                        )}
                         {poop && (
                           <Image
                             style={styles.poopPlace}
