@@ -38,6 +38,9 @@ let digiPill2 = require("./digiPill2.png");
 let digiPill3 = require("./digiPill3.png");
 let digiSleep = require("./digiSleep2.gif");
 let digiSleepLightsOn = require("./digiSleep1.gif");
+let happyDigi1 = require("./happyDigi1.png");
+let happyDigi2 = require("./happyDigi2.png");
+let sickDigi = require("./sickDigi.gif");
 
 let walkLeft = require("./charizardWalkLeft.gif");
 let walkRight = require("./charizardWalkRight.gif");
@@ -51,6 +54,7 @@ let digiFoodBite3 = require("./digiFoodBite3.png");
 let digiOpenMouth = require("./digiMouthOpen.png");
 let digitalPoop = require("./digitalPoop.gif");
 let digiWave = require("./digiWave.png");
+let digiSun = require("./digiSun.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -81,6 +85,11 @@ export default function App() {
   const [lightOff, setLightOff] = useState(false);
   const [currentTime, setCurrenTime] = useState(new Date());
   const [isSleeping, setIsSleeping] = useState(false);
+  const [playHappyDigiSegment, setPlayHappyDigiSegment] = useState(false);
+  const [happyCounter, setHappyCounter] = useState(1);
+  const [happyDigiSprite, setHappyDigiSprite] = useState(happyDigi1);
+  const [showDigiSun, setShowDigiSun] = useState(false);
+  const [isDigiSick, setIsDigiSick] = useState(true);
 
   const [poopLocation, setPoopLocation] = useState(20);
 
@@ -107,6 +116,10 @@ export default function App() {
 
     if (feeding) {
       eat();
+    }
+
+    if (playHappyDigiSegment) {
+      playHappySegment();
     }
     Font.loadAsync({
       ARCADE_N: require("./assets/fonts/PublicPixel.ttf"),
@@ -138,11 +151,36 @@ export default function App() {
     cleanPoop,
     waveLocation,
     poopLocation,
+    happyCounter,
+    happyDigiSprite,
   ]);
+
+  const playHappySegment = async () => {
+    await setTimeout(() => {
+      if (happyCounter % 2 == 0) {
+        setHappyDigiSprite(happyDigi1);
+        setShowDigiSun(false);
+      } else {
+        setHappyDigiSprite(happyDigi2);
+        setShowDigiSun(true);
+      }
+
+      if (happyCounter === 4) {
+        setHappyCounter(1);
+        setPlayHappyDigiSegment(false);
+        setHappyDigiSprite(happyDigi1);
+        setShowDigiSun(false);
+      }
+      setHappyCounter(happyCounter + 1);
+    }, 500);
+  };
 
   const moveWave = async () => {
     await setTimeout(() => {
       if (waveLocation < 0) {
+        if (poop) {
+          setPlayHappyDigiSegment(true);
+        }
         setPoop(false);
         setCleanPoop(false);
         setWaveLocation(Dimensions.get("window").width);
@@ -278,7 +316,7 @@ export default function App() {
             /> */}
             <TouchableOpacity
               onPress={() => {
-                if (isSleeping) {
+                if (isSleeping || isDigiSick) {
                   return;
                 }
                 setFoodMenu(!foodMenu);
@@ -377,6 +415,42 @@ export default function App() {
                       placeholder={blurhash}
                       contentFit="cover"
                     />
+                  </React.Fragment>
+                ) : playHappyDigiSegment ? (
+                  <React.Fragment>
+                    <Image
+                      style={styles.happyPlace}
+                      source={happyDigiSprite}
+                      placeholder={blurhash}
+                      contentFit="cover"
+                    />
+                    {showDigiSun && (
+                      <Image
+                        style={styles.sunPlace}
+                        source={digiSun}
+                        placeholder={blurhash}
+                        contentFit="cover"
+                      />
+                    )}
+                  </React.Fragment>
+                ) : isDigiSick ? (
+                  <React.Fragment>
+                    {/* <Image
+                      style={styles.sleepingPlace}
+                      source={sickDigi}
+                      placeholder={blurhash}
+                      contentFit="cover"
+                    /> */}
+                    {lightOff ? (
+                      <View style={styles.sleep} />
+                    ) : (
+                      <Image
+                        style={styles.sleepingPlace}
+                        source={sickDigi}
+                        placeholder={blurhash}
+                        contentFit="cover"
+                      />
+                    )}
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
@@ -499,7 +573,7 @@ export default function App() {
           <View style={styles.lowerButtonContainer}>
             <TouchableOpacity
               onPress={() => {
-                if (isSleeping) {
+                if (isSleeping || isDigiSick) {
                   return;
                 }
                 setCleanPoop(!cleanPoop);
@@ -657,6 +731,20 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     left: Dimensions.get("window").width / 2.5,
+  },
+  happyPlace: {
+    width: 100,
+    height: 100,
+    position: "absolute",
+    bottom: 30,
+    left: Dimensions.get("window").width / 2.5,
+  },
+  sunPlace: {
+    width: 60,
+    height: 60,
+    position: "relative",
+    bottom: 20,
+    left: Dimensions.get("window").width / 1.6,
   },
   imageLandscape: {
     resizeMode: "cover",
