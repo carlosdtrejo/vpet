@@ -56,6 +56,8 @@ let digitalPoop = require("./digitalPoop.gif");
 let digiWave = require("./digiWave.png");
 let digiSun = require("./digiSun.png");
 let digiHealth = require("./digiHealth.png");
+let digiNoLeft = require("./digiNoLeft.png");
+let digiNoRight = require("./digiNoRight.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -94,6 +96,8 @@ export default function App() {
   const [digiHeal, setDigiHeal] = useState(false);
   const [healingDigi, setHealingDigi] = useState(false);
   const [gotHealed, setGotHealed] = useState(false);
+  const [noSegment, setNoSegment] = useState(false);
+  const [digiNoSprite, setDigiNoSprite] = useState(digiNoLeft);
 
   const [poopLocation, setPoopLocation] = useState(20);
 
@@ -134,6 +138,10 @@ export default function App() {
     if (playHappyDigiSegment) {
       playHappySegment();
     }
+
+    if (noSegment) {
+      playNoSegment();
+    }
     Font.loadAsync({
       ARCADE_N: require("./assets/fonts/PublicPixel.ttf"),
     });
@@ -170,7 +178,27 @@ export default function App() {
     digiHeal,
     gotHealed,
     healingDigi,
+    noSegment,
+    digiNoSprite,
   ]);
+
+  const playNoSegment = async () => {
+    await setTimeout(() => {
+      if (happyCounter % 2 == 0) {
+        setDigiNoSprite(digiNoLeft);
+      } else {
+        setDigiNoSprite(digiNoRight);
+      }
+
+      if (happyCounter === 5) {
+        setHappyCounter(1);
+        setNoSegment(false);
+      }
+      if (happyCounter < 5) {
+        setHappyCounter(happyCounter + 1);
+      }
+    }, 500);
+  };
 
   const healDigi = async () => {
     await setTimeout(() => {
@@ -474,6 +502,15 @@ export default function App() {
                       />
                     )}
                   </React.Fragment>
+                ) : noSegment ? (
+                  <React.Fragment>
+                    <Image
+                      style={styles.happyPlace}
+                      source={digiNoSprite}
+                      placeholder={blurhash}
+                      contentFit="cover"
+                    />
+                  </React.Fragment>
                 ) : isDigiSick ? (
                   <React.Fragment>
                     {/* <Image
@@ -642,6 +679,8 @@ export default function App() {
               onPress={() => {
                 if (isDigiSick) {
                   setDigiHeal(true);
+                } else {
+                  setNoSegment(true);
                 }
               }}
               title="Stats"
