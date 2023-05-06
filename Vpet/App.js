@@ -58,6 +58,8 @@ let digiSun = require("./digiSun.png");
 let digiHealth = require("./digiHealth.png");
 let digiNoLeft = require("./digiNoLeft.png");
 let digiNoRight = require("./digiNoRight.png");
+let runningDigi = require("./runningDigi2.gif");
+let digiObstacle = require("./digiObstacle.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -77,7 +79,7 @@ export default function App() {
   const [walk, setWalk] = useState(280);
   const [direction, setDirection] = useState(true); //true for left false for right
   const [feeding, setFeeding] = useState(false);
-  const [walkingSprite, setWalkingSprite] = useState(walkLeft1);
+  const [walkingSprite, setWalkingSprite] = useState(walkLeft1); // 16x16 with 128 resolution
   const [step, setStep] = useState(0);
   const [bite, setBite] = useState(0);
   const [eatingSprite, setEatingSprite] = useState(walkLeft1);
@@ -92,12 +94,22 @@ export default function App() {
   const [happyCounter, setHappyCounter] = useState(1);
   const [happyDigiSprite, setHappyDigiSprite] = useState(happyDigi1);
   const [showDigiSun, setShowDigiSun] = useState(false);
-  const [isDigiSick, setIsDigiSick] = useState(true);
+  const [isDigiSick, setIsDigiSick] = useState(false);
   const [digiHeal, setDigiHeal] = useState(false);
   const [healingDigi, setHealingDigi] = useState(false);
   const [gotHealed, setGotHealed] = useState(false);
   const [noSegment, setNoSegment] = useState(false);
   const [digiNoSprite, setDigiNoSprite] = useState(digiNoLeft);
+  const [showTrainingMenu, setShowTrainingMenu] = useState(false);
+  const [training1, setTraining1] = useState(false);
+  const [training2, setTraining2] = useState(false);
+  const [adventure, setAdventure] = useState(false);
+  const [jumpObstacle, setJumpObstacle] = useState(false);
+  const [jump, setjump] = useState(0);
+  const [comingDown, setComingDown] = useState(false);
+  const [hold, setHold] = useState(false);
+  const [jumpingSpite, setJumpingSprite] = useState(runningDigi);
+  const [jumpStep, setJumpStep] = useState(0);
 
   const [poopLocation, setPoopLocation] = useState(20);
 
@@ -105,7 +117,11 @@ export default function App() {
   const [waveLocation, setWaveLocation] = useState(
     Dimensions.get("window").width
   );
-
+  const [cactusLocation, setCactusLocation] = useState(
+    Dimensions.get("window").width
+  );
+  const [cactusSpeed, setCactusSpeed] = useState(20);
+  const [waveSpeed, setWaveSpeed] = useState(35);
   const [statsPage, setStatsPage] = useState(0);
 
   useEffect(() => {
@@ -113,6 +129,13 @@ export default function App() {
       setIsSleeping(false);
     } else {
       setIsSleeping(true);
+    }
+
+    if (training1) {
+      moveCactus();
+      if (jumpObstacle) {
+        digiJump();
+      }
     }
 
     checkOrientation();
@@ -147,10 +170,12 @@ export default function App() {
     });
     // console.log(statsPage);
     //console.log(walk);
-    if (walk <= 20) {
-      setDirection(false);
-    } else if (walk >= 280) {
-      setDirection(true);
+    if (!cleanPoop && !showTrainingMenu) {
+      if (walk <= 20) {
+        setDirection(false);
+      } else if (walk >= 280) {
+        setDirection(true);
+      }
     }
     const subscription = ScreenOrientation.addOrientationChangeListener(
       handleOrientationChange
@@ -180,7 +205,99 @@ export default function App() {
     healingDigi,
     noSegment,
     digiNoSprite,
+    showTrainingMenu,
+    waveSpeed,
+    jumpObstacle,
+    jump,
+    comingDown,
+    hold,
+    cactusLocation,
+    cactusSpeed,
+    jumpStep,
   ]);
+
+  const moveCactus = async () => {
+    await setTimeout(() => {
+      if (cactusLocation < -100) {
+        let random = Math.floor(Math.random() * 5);
+        console.log(cactusSpeed);
+        if (cactusSpeed <= 15) {
+          setCactusSpeed(25);
+        }
+        if (random >= 3) {
+          setCactusSpeed(cactusSpeed - random);
+        } else {
+          setCactusSpeed(cactusSpeed + random);
+        }
+        setCactusLocation(Dimensions.get("window").width + cactusSpeed * 2);
+
+        setHold(true);
+      } else if (hold) {
+        setHold(false);
+      } else if (!hold) {
+        setCactusLocation(cactusLocation - cactusSpeed);
+      }
+      // if (cactusLocation > 70 && cactusLocation < 120 && jump <= 32) {
+      //   setjump(0);
+      //   setJumpObstacle(false);
+      //   setTraining1(false);
+      // }
+    }, 5);
+  };
+
+  // const digiJump = async () => {
+  //   await setTimeout(() => {
+  //     if (happyCounter == 1 || happyCounter == 2) {
+  //       if (jump === 80) {
+  //         setjump(80);
+  //         setHold(true);
+  //       } else {
+  //         setjump(jump + 40);
+  //         setHappyCounter(happyCounter + 1);
+  //       }
+  //     } else if (hold && !comingDown) {
+  //       setjump(40);
+  //       setComingDown(true);
+  //     } else if (comingDown) {
+  //       if (happyCounter === 3 || happyCounter == 4) {
+  //         if (jump === 0) {
+  //           setjump(0);
+  //           setJumpObstacle(false);
+  //         } else {
+  //           setjump(jump - 40);
+  //           setHappyCounter(happyCounter + 1);
+  //         }
+  //       }
+  //     }
+  //   }, 80);
+  // };
+
+  const digiJump = async () => {
+    await setTimeout(() => {
+      if (jumpStep == 0) {
+        if (jump === 80) {
+          setjump(80);
+          setHold(true);
+        } else {
+          setjump(jump + 80);
+          setJumpStep(jumpStep + 1);
+          setHold(true);
+        }
+      }
+
+      if (jumpStep > 0) {
+        if (jump === 0 || jump < 0) {
+          setjump(0);
+          setJumpObstacle(false);
+          setJumpStep(0);
+        } else {
+          setjump(jump - 80);
+          setJumpStep(3);
+          setJumpObstacle(false);
+        }
+      }
+    });
+  };
 
   const playNoSegment = async () => {
     await setTimeout(() => {
@@ -247,19 +364,21 @@ export default function App() {
         if (poop) {
           setPlayHappyDigiSegment(true);
         }
+        setWaveSpeed(35);
         setPoop(false);
         setCleanPoop(false);
         setWaveLocation(Dimensions.get("window").width);
       } else {
-        setWaveLocation(waveLocation - 20);
+        setWaveLocation(waveLocation - waveSpeed);
         if (waveLocation - 120 <= digiSpot) {
           setDigiSpot(waveLocation - 120);
+          if (!waveSpeed > 25) setWaveSpeed(45);
         }
         if (waveLocation - 120 <= poopLocation) {
           setPoopLocation(waveLocation - 120);
         }
       }
-    }, 10);
+    }, 25);
   };
 
   const eat = async () => {
@@ -399,7 +518,12 @@ export default function App() {
               <Image source={digiFood} />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={onPressLearnMore}
+              onPress={() => {
+                setTraining1(false);
+                setTraining2(false);
+                setAdventure(false);
+                setShowTrainingMenu(!showTrainingMenu);
+              }}
               title="Stats"
               color="#000000a0"
             >
@@ -513,12 +637,6 @@ export default function App() {
                   </React.Fragment>
                 ) : isDigiSick ? (
                   <React.Fragment>
-                    {/* <Image
-                      style={styles.sleepingPlace}
-                      source={sickDigi}
-                      placeholder={blurhash}
-                      contentFit="cover"
-                    /> */}
                     {healingDigi && (
                       <Image
                         style={styles.digiHealPlace}
@@ -527,7 +645,6 @@ export default function App() {
                         contentFit="cover"
                       />
                     )}
-
                     {lightOff ? (
                       <View style={styles.sleep} />
                     ) : (
@@ -537,6 +654,65 @@ export default function App() {
                         placeholder={blurhash}
                         contentFit="cover"
                       />
+                    )}
+                  </React.Fragment>
+                ) : showTrainingMenu ? (
+                  <React.Fragment>
+                    {!training1 && !training2 && !adventure && (
+                      <View style={styles.trainingMenu}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setjump(0);
+                            setCactusLocation(Dimensions.get("window").width);
+                            setCactusSpeed(25);
+
+                            setTraining1(true);
+                          }}
+                          title="Stats"
+                          color="#000000a0"
+                        >
+                          <Text style={styles.trainingOption}>Training 1</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setTraining2(true);
+                          }}
+                          title="Stats"
+                          color="#000000a0"
+                        >
+                          <Text style={styles.trainingOption}>Training 2</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setAdventure(true);
+                          }}
+                          title="Stats"
+                          color="#000000a0"
+                        >
+                          <Text style={styles.trainingOption}>Adventure</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    {training1 && (
+                      <React.Fragment>
+                        <TouchableOpacity
+                          onPress={() => {
+                            //setHappyCounter(1);
+                            setJumpStep(0);
+                            setJumpObstacle(true);
+                          }}
+                          disabled={jumpObstacle ? true : false}
+                          style={styles.jumpingSpot(jump)}
+                        >
+                          <Image source={jumpingSpite} />
+                        </TouchableOpacity>
+                        <Image
+                          style={styles.cactusObstacle(cactusLocation)}
+                          source={digiObstacle}
+                          placeholder={blurhash}
+                          contentFit="cover"
+                        />
+                      </React.Fragment>
                     )}
                   </React.Fragment>
                 ) : (
@@ -660,7 +836,7 @@ export default function App() {
           <View style={styles.lowerButtonContainer}>
             <TouchableOpacity
               onPress={() => {
-                if (isSleeping || isDigiSick || cleanPoop) {
+                if (isSleeping || isDigiSick || cleanPoop || showTrainingMenu) {
                   return;
                 }
                 setCleanPoop(!cleanPoop);
@@ -669,6 +845,7 @@ export default function App() {
                 setFeeding(false);
                 setBite(0);
                 setStatsPage(9);
+                setHappyCounter(1);
               }}
               title="Stats"
               color="#000000a0"
@@ -677,6 +854,9 @@ export default function App() {
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
+                if (isSleeping || cleanPoop || showTrainingMenu) {
+                  return;
+                }
                 if (isDigiSick) {
                   setDigiHeal(true);
                 } else {
@@ -801,6 +981,11 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 0,
   }),
+  cactusObstacle: (cactusLocation) => ({
+    position: "absolute",
+    bottom: 30,
+    left: cactusLocation,
+  }),
   poopPlac1: (poopLocation) => ({
     left: poopLocation,
     position: "absolute",
@@ -828,7 +1013,7 @@ const styles = StyleSheet.create({
   digiHealPlace: {
     position: "absolute",
     bottom: 85,
-    left: Dimensions.get("window").width / 1.5,
+    left: Dimensions.get("window").width / 3.5,
     zIndex: 1,
     height: 50,
     width: 50,
@@ -948,6 +1133,26 @@ const styles = StyleSheet.create({
     bottom: 12,
     zIndex: 1,
   },
+  trainingMenu: {
+    marginTop: 30,
+    flexDirection: "column",
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  trainingOption: {
+    margin: 10,
+    padding: 5,
+    fontFamily: "ARCADE_N",
+    fontSize: 25,
+  },
+  jumpingSpot: (jump) => ({
+    width: 100,
+    height: 100,
+    position: "absolute",
+    bottom: jump,
+    //left: Dimensions.get("window").width / 4.5,
+    left: 70,
+  }),
 });
 
 const onPressLearnMore = () => {
