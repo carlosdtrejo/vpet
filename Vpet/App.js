@@ -55,6 +55,7 @@ let digiOpenMouth = require("./digiMouthOpen.png");
 let digitalPoop = require("./digitalPoop.gif");
 let digiWave = require("./digiWave.png");
 let digiSun = require("./digiSun.png");
+let digiHealth = require("./digiHealth.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -90,6 +91,9 @@ export default function App() {
   const [happyDigiSprite, setHappyDigiSprite] = useState(happyDigi1);
   const [showDigiSun, setShowDigiSun] = useState(false);
   const [isDigiSick, setIsDigiSick] = useState(true);
+  const [digiHeal, setDigiHeal] = useState(false);
+  const [healingDigi, setHealingDigi] = useState(false);
+  const [gotHealed, setGotHealed] = useState(false);
 
   const [poopLocation, setPoopLocation] = useState(20);
 
@@ -101,7 +105,7 @@ export default function App() {
   const [statsPage, setStatsPage] = useState(0);
 
   useEffect(() => {
-    if (currentTime.getHours() >= 8 && currentTime.getHours() < 22) {
+    if (currentTime.getHours() >= 8 && currentTime.getHours() < 24) {
       setIsSleeping(false);
     } else {
       setIsSleeping(true);
@@ -116,6 +120,15 @@ export default function App() {
 
     if (feeding) {
       eat();
+    }
+
+    if (digiHeal) {
+      healDigi();
+    }
+
+    if (gotHealed) {
+      setPlayHappyDigiSegment(true);
+      setGotHealed(false);
     }
 
     if (playHappyDigiSegment) {
@@ -153,7 +166,32 @@ export default function App() {
     poopLocation,
     happyCounter,
     happyDigiSprite,
+    isDigiSick,
+    digiHeal,
+    gotHealed,
+    healingDigi,
   ]);
+
+  const healDigi = async () => {
+    await setTimeout(() => {
+      if (happyCounter % 2 == 0) {
+        setHealingDigi(false);
+      } else {
+        setHealingDigi(true);
+      }
+
+      if (happyCounter === 6) {
+        setHappyCounter(1);
+        setIsDigiSick(false);
+        setHealingDigi(false);
+        setDigiHeal(false);
+        setGotHealed(true);
+      }
+      if (happyCounter < 6) {
+        setHappyCounter(happyCounter + 1);
+      }
+    }, 500);
+  };
 
   const playHappySegment = async () => {
     await setTimeout(() => {
@@ -171,7 +209,7 @@ export default function App() {
         setHappyDigiSprite(happyDigi1);
         setShowDigiSun(false);
       }
-      setHappyCounter(happyCounter + 1);
+      if (happyCounter < 4) setHappyCounter(happyCounter + 1);
     }, 500);
   };
 
@@ -186,14 +224,14 @@ export default function App() {
         setWaveLocation(Dimensions.get("window").width);
       } else {
         setWaveLocation(waveLocation - 20);
-        if (waveLocation - 100 <= digiSpot) {
-          setDigiSpot(waveLocation - 100);
+        if (waveLocation - 120 <= digiSpot) {
+          setDigiSpot(waveLocation - 120);
         }
-        if (waveLocation - 100 <= poopLocation) {
-          setPoopLocation(waveLocation - 100);
+        if (waveLocation - 120 <= poopLocation) {
+          setPoopLocation(waveLocation - 120);
         }
       }
-    });
+    }, 10);
   };
 
   const eat = async () => {
@@ -298,6 +336,9 @@ export default function App() {
             /> */}
             <TouchableOpacity
               onPress={() => {
+                if (digiHeal) {
+                  return;
+                }
                 setStatsPage(
                   statsPage / 9 === 1 ? statsPage * 0 + 1 : statsPage + 1
                 );
@@ -441,6 +482,15 @@ export default function App() {
                       placeholder={blurhash}
                       contentFit="cover"
                     /> */}
+                    {healingDigi && (
+                      <Image
+                        style={styles.digiHealPlace}
+                        source={digiHealth}
+                        placeholder={blurhash}
+                        contentFit="cover"
+                      />
+                    )}
+
                     {lightOff ? (
                       <View style={styles.sleep} />
                     ) : (
@@ -520,7 +570,7 @@ export default function App() {
               )}
               {statsPage === 3 && (
                 <React.Fragment>
-                  <Text style={styles.textOverImagePortrait}>STRENGHT:</Text>
+                  <Text style={styles.textOverImagePortrait}>STRENGTH:</Text>
                   <Image source={fullHealth} style={styles.healthImage}></Image>
                 </React.Fragment>
               )}
@@ -573,7 +623,7 @@ export default function App() {
           <View style={styles.lowerButtonContainer}>
             <TouchableOpacity
               onPress={() => {
-                if (isSleeping || isDigiSick) {
+                if (isSleeping || isDigiSick || cleanPoop) {
                   return;
                 }
                 setCleanPoop(!cleanPoop);
@@ -589,7 +639,11 @@ export default function App() {
               <Image source={digiPoop} />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={onPressLearnMore}
+              onPress={() => {
+                if (isDigiSick) {
+                  setDigiHeal(true);
+                }
+              }}
               title="Stats"
               color="#000000a0"
             >
@@ -731,6 +785,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     left: Dimensions.get("window").width / 2.5,
+  },
+  digiHealPlace: {
+    position: "absolute",
+    bottom: 85,
+    left: Dimensions.get("window").width / 1.5,
+    zIndex: 1,
+    height: 50,
+    width: 50,
   },
   happyPlace: {
     width: 100,
