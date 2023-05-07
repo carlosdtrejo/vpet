@@ -219,16 +219,17 @@ export default function App() {
   const moveCactus = async () => {
     await setTimeout(() => {
       if (cactusLocation < -100) {
-        let random = Math.floor(Math.random() * 5);
-        console.log(cactusSpeed);
-        if (cactusSpeed <= 15) {
-          setCactusSpeed(25);
-        }
-        if (random >= 3) {
-          setCactusSpeed(cactusSpeed - random);
-        } else {
-          setCactusSpeed(cactusSpeed + random);
-        }
+        setCactusSpeed(cactusSpeed + 1);
+
+        //let random = Math.floor(Math.random() * 5);
+        // if (cactusSpeed <= 15) {
+        //   setCactusSpeed(35);
+        // }
+        // if (random >= 3) {
+        //   setCactusSpeed(cactusSpeed - random);
+        // } else {
+        //   setCactusSpeed(cactusSpeed + random);
+        // }
         setCactusLocation(Dimensions.get("window").width + cactusSpeed * 2);
 
         setHold(true);
@@ -237,12 +238,12 @@ export default function App() {
       } else if (!hold) {
         setCactusLocation(cactusLocation - cactusSpeed);
       }
-      // if (cactusLocation > 70 && cactusLocation < 120 && jump <= 32) {
-      //   setjump(0);
-      //   setJumpObstacle(false);
-      //   setTraining1(false);
-      // }
-    }, 5);
+      if (cactusLocation > 70 && cactusLocation < 120 && jump <= 32) {
+        setjump(0);
+        setJumpObstacle(false);
+        setTraining1(false);
+      }
+    }, 1);
   };
 
   // const digiJump = async () => {
@@ -274,28 +275,28 @@ export default function App() {
 
   const digiJump = async () => {
     await setTimeout(() => {
-      if (jumpStep == 0) {
-        if (jump === 80) {
-          setjump(80);
-          setHold(true);
+      if (jumpStep < 3) {
+        if (jump >= 80) {
+          //setjump(500);
+          setComingDown(true);
+          console.log(jump);
         } else {
-          setjump(jump + 80);
+          setjump(jump + 40);
           setJumpStep(jumpStep + 1);
-          setHold(true);
         }
       }
 
-      if (jumpStep > 0) {
+      if (jumpStep >= 4 && comingDown) {
         if (jump === 0 || jump < 0) {
           setjump(0);
           setJumpObstacle(false);
           setJumpStep(0);
+          setComingDown(false);
         } else {
-          setjump(jump - 80);
-          setJumpStep(3);
-          setJumpObstacle(false);
+          setjump(jump - 40);
         }
       }
+      setJumpStep(jumpStep + 1);
     });
   };
 
@@ -697,7 +698,7 @@ export default function App() {
                       <React.Fragment>
                         <TouchableOpacity
                           onPress={() => {
-                            //setHappyCounter(1);
+                            setHappyCounter(1);
                             setJumpStep(0);
                             setJumpObstacle(true);
                           }}
