@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { StatusBar } from "expo-status-bar";
 import {
   ImageBackground,
@@ -8,6 +8,8 @@ import {
   Image,
   Button,
   TouchableOpacity,
+  Animated,
+  Easing,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
@@ -58,7 +60,7 @@ let digiSun = require("./digiSun.png");
 let digiHealth = require("./digiHealth.png");
 let digiNoLeft = require("./digiNoLeft.png");
 let digiNoRight = require("./digiNoRight.png");
-let runningDigi = require("./runningDigi2.gif");
+let runningDigi = require("./runningDigi3.gif");
 let digiObstacle = require("./digiObstacle.png");
 
 const blurhash =
@@ -105,7 +107,9 @@ export default function App() {
   const [training2, setTraining2] = useState(false);
   const [adventure, setAdventure] = useState(false);
   const [jumpObstacle, setJumpObstacle] = useState(false);
-  const [jump, setjump] = useState(0);
+  const [jump, setjump] = useState(-50);
+  const [level, setLevel] = useState(120);
+
   const [comingDown, setComingDown] = useState(false);
   const [hold, setHold] = useState(false);
   const [jumpingSpite, setJumpingSprite] = useState(runningDigi);
@@ -124,6 +128,29 @@ export default function App() {
   const [waveSpeed, setWaveSpeed] = useState(35);
   const [statsPage, setStatsPage] = useState(0);
 
+  let bottom = useRef(new Animated.Value(jump)).current; // Initial value for opacity: 0
+  let left = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+
+  //let cactusAnimation = new Animated.Animated();
+
+  let animatedStyles = [
+    {
+      bottom: bottom,
+      width: 100,
+      height: 100,
+      toValue: 120,
+      //backgroundColor: "black",
+    },
+  ];
+
+  let movingCactus = [
+    {
+      left: cactusLocation,
+      toValue: 1200,
+      zIndex: 3,
+    },
+  ];
+
   useEffect(() => {
     if (currentTime.getHours() >= 8 && currentTime.getHours() < 24) {
       setIsSleeping(false);
@@ -134,8 +161,31 @@ export default function App() {
     if (training1) {
       moveCactus();
       if (jumpObstacle) {
-        digiJump();
+        //digiJump();
+        Animated.sequence([
+          Animated.timing(bottom, {
+            toValue: 90,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+          Animated.timing(bottom, {
+            toValue: -50,
+            duration: 400,
+            useNativeDriver: false,
+          }),
+        ]).start(() => digiComeDown());
+
+        // if (jumpObstacle) digiJump();
+        // if (comingDown) digiComeDown();
       }
+
+      // Animated.timing(left, {
+      //   toValue: -550,
+      //   duration: 2500,
+      //   useNativeDriver: false,
+      // }).start();
+
+      // }
     }
 
     checkOrientation();
@@ -238,12 +288,20 @@ export default function App() {
       } else if (!hold) {
         setCactusLocation(cactusLocation - cactusSpeed);
       }
-      if (cactusLocation > 70 && cactusLocation < 120 && jump <= 32) {
-        setjump(0);
+      // console.log(bottom);
+
+      if (
+        cactusLocation > 20 &&
+        cactusLocation < 50 &&
+        bottom.__getValue() <= -34
+      ) {
+        // console.log("busted " + jump);
+        //setjump(-50);
         setJumpObstacle(false);
         setTraining1(false);
+        bottom.setValue(-50);
       }
-    }, 1);
+    });
   };
 
   // const digiJump = async () => {
@@ -273,30 +331,49 @@ export default function App() {
   //   }, 80);
   // };
 
-  const digiJump = async () => {
-    await setTimeout(() => {
-      if (jumpStep < 3) {
-        if (jump >= 80) {
-          //setjump(500);
-          setComingDown(true);
-          console.log(jump);
-        } else {
-          setjump(jump + 40);
-          setJumpStep(jumpStep + 1);
-        }
-      }
+  // const digiJump = async () => {
+  //   await setTimeout(() => {
+  //     if (jumpStep < 2) {
+  //       if (jump >= 85) {
+  //         //setjump(500);
+  //         setComingDown(true);
+  //         console.log(jump);
+  //       } else {
+  //         setjump(jump + 40);
+  //         setJumpStep(jumpStep + 1);
+  //       }
+  //     }
+  //     console.log(comingDown);
 
-      if (jumpStep >= 4 && comingDown) {
-        if (jump === 0 || jump < 0) {
-          setjump(0);
-          setJumpObstacle(false);
-          setJumpStep(0);
-          setComingDown(false);
-        } else {
-          setjump(jump - 40);
-        }
-      }
-      setJumpStep(jumpStep + 1);
+  //     if (jumpStep >= 5) {
+  //       if (jump === -30 || jump < -30) {
+  //         setjump(-30);
+  //         setJumpObstacle(false);
+  //         setJumpStep(0);
+  //         setComingDown(false);
+  //       } else {
+  //         setjump(jump - 60);
+  //       }
+  //     }
+  //     setJumpStep(jumpStep + 1);
+  //   });
+  // };
+
+  // const digiJump = async () => {
+  //   await setTimeout(() => {
+  //     // bottom.setValue(120);
+  //     //setJumpObstacle(false);
+  //     setjump(180);
+  //   });
+  // };
+
+  const digiComeDown = async () => {
+    await setTimeout(() => {
+      // bottom.setValue(-30);
+      setJumpObstacle(false);
+      //setLevel(-30);
+      setComingDown(false);
+      //setjump(-50);
     });
   };
 
@@ -663,9 +740,9 @@ export default function App() {
                       <View style={styles.trainingMenu}>
                         <TouchableOpacity
                           onPress={() => {
-                            setjump(0);
+                            //setjump(-30);
                             setCactusLocation(Dimensions.get("window").width);
-                            setCactusSpeed(25);
+                            setCactusSpeed(10);
 
                             setTraining1(true);
                           }}
@@ -698,15 +775,29 @@ export default function App() {
                       <React.Fragment>
                         <TouchableOpacity
                           onPress={() => {
-                            setHappyCounter(1);
+                            //setHappyCounter(1);
                             setJumpStep(0);
                             setJumpObstacle(true);
+                            setjump(50);
                           }}
-                          disabled={jumpObstacle ? true : false}
-                          style={styles.jumpingSpot(jump)}
+                          disabled={bottom.__getValue() === -50 ? false : true}
+                          style={styles.jumpingSpiteStyleColor}
                         >
-                          <Image source={jumpingSpite} />
+                          <Animated.View style={animatedStyles}>
+                            <Image
+                              style={styles.jumpingSpot(jump)}
+                              source={jumpingSpite}
+                            />
+                          </Animated.View>
                         </TouchableOpacity>
+                        {/* <Animated.View style={movingCactus}>
+                          <Image
+                            style={styles.cactusObstacle(cactusLocation)}
+                            source={digiObstacle}
+                            placeholder={blurhash}
+                            contentFit="cover"
+                          />
+                        </Animated.View> */}
                         <Image
                           style={styles.cactusObstacle(cactusLocation)}
                           source={digiObstacle}
@@ -986,6 +1077,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 30,
     left: cactusLocation,
+    zIndex: 1,
   }),
   poopPlac1: (poopLocation) => ({
     left: poopLocation,
@@ -1147,13 +1239,24 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   jumpingSpot: (jump) => ({
-    width: 100,
-    height: 100,
+    width: 50,
+    height: 50,
     position: "absolute",
-    bottom: jump,
+    bottom: -30,
     //left: Dimensions.get("window").width / 4.5,
-    left: 70,
+    left: 20,
+    //backgroundColor: "red",
   }),
+  // jumpingSpiteStyle: {
+
+  //   backgroundColor: "black",
+  // },
+  jumpingSpiteStyleColor: {
+    bottom: -20,
+    //backgroundColor: "black",
+    width: Dimensions.get("window").width,
+    height: Dimensions.get("window").height / 4,
+  },
 });
 
 const onPressLearnMore = () => {
