@@ -8,8 +8,10 @@ import {
   Image,
   Button,
   TouchableOpacity,
+  TouchableHighlight,
   Animated,
   Easing,
+  TouchableWithoutFeedback,
 } from "react-native";
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useEffect, useState } from "react";
@@ -107,8 +109,8 @@ export default function App() {
   const [training2, setTraining2] = useState(false);
   const [adventure, setAdventure] = useState(false);
   const [jumpObstacle, setJumpObstacle] = useState(false);
-  const [jump, setjump] = useState(-50);
-  const [level, setLevel] = useState(120);
+  const [jump, setjump] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
 
   const [comingDown, setComingDown] = useState(false);
   const [hold, setHold] = useState(false);
@@ -124,60 +126,112 @@ export default function App() {
   const [cactusLocation, setCactusLocation] = useState(
     Dimensions.get("window").width
   );
+
   const [cactusSpeed, setCactusSpeed] = useState(20);
   const [waveSpeed, setWaveSpeed] = useState(35);
   const [statsPage, setStatsPage] = useState(0);
+  const [score, setScore] = useState(0);
 
   let bottom = useRef(new Animated.Value(jump)).current; // Initial value for opacity: 0
   let left = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+  let translation = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
 
   //let cactusAnimation = new Animated.Animated();
 
   let animatedStyles = [
     {
-      bottom: bottom,
+      translateY: bottom,
       width: 100,
       height: 100,
-      toValue: 120,
-      //backgroundColor: "black",
+      bottom: -70,
+      //toValue: -200,
+      //backgroundColor: "red",
     },
   ];
 
   let movingCactus = [
     {
-      left: cactusLocation,
-      toValue: 1200,
-      zIndex: 3,
+      left: left,
+      toValue: -700,
+      zIndex: 1,
     },
   ];
+
+  const animate = () => {
+    Animated.sequence([
+      Animated.timing(bottom, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
+      Animated.timing(bottom, {
+        toValue: -140,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.timing(bottom, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start(() => digiComeDown());
+  };
+
+  const animateCactus = async () => {
+    await setTimeout(() => {
+      console.log(left.__getValue());
+      Animated.loop(
+        Animated.timing(left, {
+          toValue: -14,
+          duration: 2500,
+          useNativeDriver: false,
+          Easing: Easing.linear,
+        })
+      ).start(() => left.setValue(1200));
+    });
+  };
 
   useEffect(() => {
     if (currentTime.getHours() >= 8 && currentTime.getHours() < 24) {
       setIsSleeping(false);
     } else {
-      setIsSleeping(true);
+      setIsSleeping(false);
     }
 
     if (training1) {
-      moveCactus();
-      if (jumpObstacle) {
-        //digiJump();
-        Animated.sequence([
-          Animated.timing(bottom, {
-            toValue: 90,
-            duration: 400,
-            useNativeDriver: false,
-          }),
-          Animated.timing(bottom, {
-            toValue: -50,
-            duration: 400,
-            useNativeDriver: false,
-          }),
-        ]).start(() => digiComeDown());
+      if (!isGameOver) {
+        console.log(bottom.__getValue());
 
-        // if (jumpObstacle) digiJump();
-        // if (comingDown) digiComeDown();
+        // animateCactus();
+        moveCactus();
+        // Animated.loop(
+        //   Animated.timing(left, {
+        //     toValue: -600,
+        //     duration: 4000,
+        //     useNativeDriver: false,
+        //     //Easing: Easing.linear,
+        //   })
+        // ).start(() => left.setValue(Dimensions.get("window").width + 500));
       }
+      // moveCactus();
+      //if (jumpObstacle) {
+      //digiJump();
+      // Animated.sequence([
+      //   Animated.timing(bottom, {
+      //     toValue: 90,
+      //     duration: 400,
+      //     useNativeDriver: false,
+      //   }),
+      //   Animated.timing(bottom, {
+      //     toValue: -50,
+      //     duration: 400,
+      //     useNativeDriver: false,
+      //   }),
+      // ]).start(() => digiComeDown());
+
+      // if (jumpObstacle) digiJump();
+      // if (comingDown) digiComeDown();
+      //}
 
       // Animated.timing(left, {
       //   toValue: -550,
@@ -264,12 +318,24 @@ export default function App() {
     cactusLocation,
     cactusSpeed,
     jumpStep,
+    score,
   ]);
 
   const moveCactus = async () => {
     await setTimeout(() => {
       if (cactusLocation < -100) {
-        setCactusSpeed(cactusSpeed + 1);
+        if (score % 3 === 0) {
+          let x = Math.random() * (15 - 10) + 10;
+          if (x >= 10) setCactusSpeed(x);
+        }
+
+        if (score % 4 === 0) {
+          setCactusSpeed(10);
+        }
+        if (score % 5 === 0) {
+          let x = Math.random() * (20 - 10) + 10;
+          if (x >= 10) setCactusSpeed(x);
+        }
 
         //let random = Math.floor(Math.random() * 5);
         // if (cactusSpeed <= 15) {
@@ -281,6 +347,7 @@ export default function App() {
         //   setCactusSpeed(cactusSpeed + random);
         // }
         setCactusLocation(Dimensions.get("window").width + cactusSpeed * 2);
+        setScore(score + 1);
 
         setHold(true);
       } else if (hold) {
@@ -290,16 +357,24 @@ export default function App() {
       }
       // console.log(bottom);
 
-      if (
-        cactusLocation > 20 &&
-        cactusLocation < 50 &&
-        bottom.__getValue() <= -34
-      ) {
+      if (cactusLocation > 0 && cactusLocation < 80 && jump <= 50) {
         // console.log("busted " + jump);
         //setjump(-50);
-        setJumpObstacle(false);
-        setTraining1(false);
-        bottom.setValue(-50);
+        if (score >= 10) {
+          setHappyCounter(1);
+          setPlayHappyDigiSegment(true);
+          //bottom.setValue(0);
+          setIsGameOver(true);
+          setJumpObstacle(false);
+          setTraining1(false);
+        } else {
+          setHappyCounter(1);
+          setNoSegment(true);
+          setJumpObstacle(false);
+          setTraining1(false);
+          //bottom.setValue(0);
+          setIsGameOver(true);
+        }
       }
     });
   };
@@ -369,11 +444,10 @@ export default function App() {
 
   const digiComeDown = async () => {
     await setTimeout(() => {
-      // bottom.setValue(-30);
+      //bottom.setValue(0);
       setJumpObstacle(false);
-      //setLevel(-30);
       setComingDown(false);
-      //setjump(-50);
+      setjump(0);
     });
   };
 
@@ -427,7 +501,7 @@ export default function App() {
       }
 
       if (happyCounter === 4) {
-        setHappyCounter(1);
+        setHappyCounter(2);
         setPlayHappyDigiSegment(false);
         setHappyDigiSprite(happyDigi1);
         setShowDigiSun(false);
@@ -740,11 +814,13 @@ export default function App() {
                       <View style={styles.trainingMenu}>
                         <TouchableOpacity
                           onPress={() => {
-                            //setjump(-30);
+                            bottom.resetAnimation();
+                            setHappyCounter(1);
                             setCactusLocation(Dimensions.get("window").width);
                             setCactusSpeed(10);
-
+                            setIsGameOver(false);
                             setTraining1(true);
+                            setScore(0);
                           }}
                           title="Stats"
                           color="#000000a0"
@@ -773,32 +849,49 @@ export default function App() {
                     )}
                     {training1 && (
                       <React.Fragment>
-                        <TouchableOpacity
+                        <TouchableWithoutFeedback
+                          accessibilityRole="image"
                           onPress={() => {
-                            //setHappyCounter(1);
-                            setJumpStep(0);
-                            setJumpObstacle(true);
-                            setjump(50);
+                            if (isGameOver) {
+                              setTraining1(false);
+                            } else if (!jumpObstacle) {
+                              setJumpObstacle(true);
+                              setjump(70);
+                              animate();
+                            }
                           }}
-                          disabled={bottom.__getValue() === -50 ? false : true}
+                          //disabled={jumpObstacle ? true : false}
                           style={styles.jumpingSpiteStyleColor}
                         >
-                          <Animated.View style={animatedStyles}>
-                            <Image
-                              style={styles.jumpingSpot(jump)}
-                              source={jumpingSpite}
-                            />
-                          </Animated.View>
-                        </TouchableOpacity>
-                        {/* <Animated.View style={movingCactus}>
+                          <View style={styles.jumpingSpiteStyleColor}>
+                            <Text style={styles.playingScore}>
+                              Score: {score}
+                            </Text>
+                          </View>
+                        </TouchableWithoutFeedback>
+                        {/* {isGameOver && (
+                          <TouchableOpacity onPress={() => setTraining1(false)}>
+                            <Text style={styles.gameOverText}>GAME OVER</Text>
+                            <Text style={styles.statsText3}>
+                              Score: {score}
+                            </Text>
+                          </TouchableOpacity>
+                        )} */}
+                        <Animated.View style={animatedStyles}>
                           <Image
+                            style={styles.jumpingSpot(jump)}
+                            source={jumpingSpite}
+                          />
+                        </Animated.View>
+                        {/* <Animated.View style={movingCactus}>
+                          <Animated.Image
                             style={styles.cactusObstacle(cactusLocation)}
                             source={digiObstacle}
                             placeholder={blurhash}
                             contentFit="cover"
                           />
                         </Animated.View> */}
-                        <Image
+                        <Animated.Image
                           style={styles.cactusObstacle(cactusLocation)}
                           source={digiObstacle}
                           placeholder={blurhash}
@@ -952,6 +1045,7 @@ export default function App() {
                 if (isDigiSick) {
                   setDigiHeal(true);
                 } else {
+                  setHappyCounter(1);
                   setNoSegment(true);
                 }
               }}
@@ -1078,6 +1172,8 @@ const styles = StyleSheet.create({
     bottom: 30,
     left: cactusLocation,
     zIndex: 1,
+    height: 45,
+    width: 35,
   }),
   poopPlac1: (poopLocation) => ({
     left: poopLocation,
@@ -1188,6 +1284,26 @@ const styles = StyleSheet.create({
     fontSize: 30,
     textAlign: "left",
   },
+  statsText3: {
+    paddingLeft: Dimensions.get("window").width / 4.4,
+    paddingTop: 20,
+    position: "absolute",
+    zIndex: 1,
+    fontFamily: "ARCADE_N",
+    fontSize: 30,
+    textAlign: "center",
+    marginTop: -80,
+  },
+  playingScore: {
+    //paddingLeft: Dimensions.get("window").width / 4.4,
+    paddingTop: 60,
+    position: "relative",
+    zIndex: 1,
+    fontFamily: "ARCADE_N",
+    fontSize: 15,
+    textAlign: "center",
+    //marginTop: -80,
+  },
   healthImage: {
     position: "absolute",
     width: 330,
@@ -1199,6 +1315,14 @@ const styles = StyleSheet.create({
   textOverImagePortrait: {
     paddingLeft: 60,
     paddingBottom: 50,
+    position: "absolute",
+    zIndex: 1,
+    fontFamily: "ARCADE_N",
+    fontSize: 30,
+  },
+  gameOverText: {
+    paddingLeft: 60,
+    marginTop: -100,
     position: "absolute",
     zIndex: 1,
     fontFamily: "ARCADE_N",
@@ -1239,10 +1363,10 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   jumpingSpot: (jump) => ({
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     position: "absolute",
-    bottom: -30,
+    bottom: 120,
     //left: Dimensions.get("window").width / 4.5,
     left: 20,
     //backgroundColor: "red",
@@ -1252,10 +1376,11 @@ const styles = StyleSheet.create({
   //   backgroundColor: "black",
   // },
   jumpingSpiteStyleColor: {
-    bottom: -20,
+    bottom: -70,
     //backgroundColor: "black",
     width: Dimensions.get("window").width,
     height: Dimensions.get("window").height / 4,
+    zIndex: 1,
   },
 });
 
