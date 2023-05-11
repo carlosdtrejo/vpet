@@ -63,7 +63,7 @@ let digiHealth = require("./digiHealth.png");
 let digiNoLeft = require("./digiNoLeft.png");
 let digiNoRight = require("./digiNoRight.png");
 let runningDigi = require("./runningDigi3.gif");
-let digiObstacle = require("./digiObstacle.png");
+let digiObstacle = require("./digiObstacle3.png");
 
 const blurhash =
   "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
@@ -133,7 +133,20 @@ export default function App() {
   const [score, setScore] = useState(0);
 
   let bottom = useRef(new Animated.Value(jump)).current; // Initial value for opacity: 0
+  let bottomPlace = bottom.addListener(({ value }) => {
+    value;
+  });
+
   let left = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+  let left1 = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+  let left2 = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+  let left3 = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+  let left4 = useRef(new Animated.Value(cactusLocation)).current; // Initial value for opacity: 0
+
+  let leftPlace = left.addListener(({ value }) => {
+    value;
+  });
+
   let translation = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
 
   //let cactusAnimation = new Animated.Animated();
@@ -151,44 +164,97 @@ export default function App() {
 
   let movingCactus = [
     {
-      left: left,
-      toValue: -700,
+      translateX: left,
+      //toValue: -700,
+      zIndex: 1,
+    },
+  ];
+
+  let movingCactus1 = [
+    {
+      translateX: left1,
+      //toValue: -700,
+      zIndex: 1,
+    },
+  ];
+  let movingCactus2 = [
+    {
+      translateX: left2,
+      //toValue: -700,
+      zIndex: 1,
+    },
+  ];
+  let movingCactus3 = [
+    {
+      translateX: left3,
+      //toValue: -700,
+      zIndex: 1,
+    },
+  ];
+  let movingCactus4 = [
+    {
+      translateX: left4,
+      //toValue: -700,
       zIndex: 1,
     },
   ];
 
   const animate = () => {
     Animated.sequence([
-      Animated.timing(bottom, {
-        toValue: 0,
-        duration: 0,
-        useNativeDriver: true,
-      }),
+      // Animated.timing(bottom, {
+      //   toValue: 0,
+      //   duration: -10,
+      //   useNativeDriver: true,
+      // }),
       Animated.timing(bottom, {
         toValue: -140,
-        duration: 300,
+        duration: 450,
         useNativeDriver: true,
       }),
       Animated.timing(bottom, {
         toValue: 0,
-        duration: 300,
+        duration: 325,
         useNativeDriver: true,
       }),
-    ]).start(() => digiComeDown());
+    ]).start();
+    //() => digiComeDown()
   };
 
   const animateCactus = async () => {
-    await setTimeout(() => {
-      console.log(left.__getValue());
-      Animated.loop(
+    Animated.loop(
+      Animated.sequence([
         Animated.timing(left, {
-          toValue: -14,
-          duration: 2500,
-          useNativeDriver: false,
-          Easing: Easing.linear,
-        })
-      ).start(() => left.setValue(1200));
-    });
+          toValue: -2700,
+          duration: 19500,
+          useNativeDriver: true,
+          //Easing: Easing.linear,
+        }),
+        // Animated.timing(left1, {
+        //   toValue: -1400,
+        //   duration: 7500,
+        //   useNativeDriver: true,
+        //   // Easing: Easing.linear,
+        // }),
+        // Animated.timing(left2, {
+        //   toValue: -2800,
+        //   duration: 6500,
+        //   useNativeDriver: true,
+        //   //  Easing: Easing.linear,
+        // }),
+        // Animated.timing(left3, {
+        //   toValue: -3700,
+        //   duration: 5500,
+        //   useNativeDriver: true,
+        //   // Easing: Easing.linear,
+        // }),
+        // Animated.timing(left4, {
+        //   toValue: -4700,
+        //   duration: 6500,
+        //   useNativeDriver: true,
+        //   //  Easing: Easing.linear,
+        // }),
+      ])
+    ).start();
   };
 
   useEffect(() => {
@@ -199,19 +265,147 @@ export default function App() {
     }
 
     if (training1) {
-      if (!isGameOver) {
-        console.log(bottom.__getValue());
+      if (!isGameOver && !playHappyDigiSegment) {
+        //trainingLoop();
+        // console.log(left.__getValue());
+        // if (left.__getValue() >= 20 && left.__getValue() <= 50) {
+        //   setIsGameOver(true);
+        // }
+        left.addListener(({ value }) => {
+          //console.log(bottom.__getValue());
+          if (value >= -400 && value <= -300 && bottom.__getValue() == 0) {
+            //console.log("first cactus");
+            left.stopAnimation();
+            setIsGameOver(true);
+            //setScore(1);
+            //setTraining1(false);
+          } else if (
+            value >= -305 &&
+            value <= -300 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(1);
+          }
 
-        // animateCactus();
-        moveCactus();
-        // Animated.loop(
-        //   Animated.timing(left, {
-        //     toValue: -600,
-        //     duration: 4000,
-        //     useNativeDriver: false,
-        //     //Easing: Easing.linear,
-        //   })
-        // ).start(() => left.setValue(Dimensions.get("window").width + 500));
+          if (value >= -550 && value <= -450 && bottom.__getValue() == 0) {
+            //console.log(value);
+            //console.log("second cactus");
+            left.stopAnimation();
+            setIsGameOver(true);
+          } else if (
+            value >= -455 &&
+            value <= -450 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(2);
+          }
+          if (value >= -780 && value <= -680 && bottom.__getValue() == 0) {
+            //console.log(value);
+            //console.log("third cactus");
+            left.stopAnimation();
+            setIsGameOver(true);
+          } else if (
+            value >= -685 &&
+            value <= -680 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(3);
+          }
+
+          if (value >= -950 && value <= -850 && bottom.__getValue() == 0) {
+            //console.log(value);
+            //console.log("fourth cactus");
+            left.stopAnimation();
+
+            setIsGameOver(true);
+          } else if (
+            value >= -855 &&
+            value <= -850 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(4);
+          }
+
+          if (value >= -1150 && value <= -1050 && bottom.__getValue() == 0) {
+            // console.log(value);
+            // console.log("fifth cactus");
+            left.stopAnimation();
+
+            setIsGameOver(true);
+          } else if (
+            value >= -1055 &&
+            value <= -1050 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(5);
+          }
+
+          if (value >= -1350 && value <= -1250 && bottom.__getValue() == 0) {
+            // console.log(value);
+            // console.log("sixth cactus");
+            left.stopAnimation();
+
+            setIsGameOver(true);
+          } else if (
+            value >= -1255 &&
+            value <= -1250 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(6);
+          }
+
+          if (value >= -1550 && value <= -1450 && bottom.__getValue() == 0) {
+            // console.log(value);
+            // console.log("seventh cactus");
+            left.stopAnimation();
+
+            setIsGameOver(true);
+          } else if (
+            value >= -1455 &&
+            value <= -1450 &&
+            bottom.__getValue() != 0
+          ) {
+            setScore(7);
+          }
+
+          if (value >= -1750 && value <= -1650 && bottom.__getValue() == 0) {
+            // console.log(value);
+            // console.log("8th cactus");
+            left.stopAnimation();
+
+            setIsGameOver(true);
+          } else if (
+            value >= -1655 &&
+            value <= -1650 &&
+            bottom.__getValue() != 0 &&
+            !isGameOver
+          ) {
+            //console.log(bottom.__getValue());
+            setScore(8);
+          }
+
+          if (left.__getValue() <= -1652 && bottom.__getValue() === 0) {
+            //setPlayHappyDigiSegment(true);
+            if (score === 8) {
+              setPlayHappyDigiSegment(true);
+              setTraining1(false);
+              setShowTrainingMenu(false);
+            }
+            setIsGameOver(true);
+
+            left.stopAnimation();
+          }
+        });
+
+        //console.log(left.__getValue());
+
+        //setJumpStep(jumpStep + 1);
+        //rconsole.log(jumpStep);
+        // if (left.__getValue() >= 300 && left.__getValue() <= 400) {
+        //   setIsGameOver(true);
+        // }
+        //console.log(Dimensions.get("window").width);
+        //moveCactus();
       }
       // moveCactus();
       //if (jumpObstacle) {
@@ -226,7 +420,7 @@ export default function App() {
       //     toValue: -50,
       //     duration: 400,
       //     useNativeDriver: false,
-      //   }),
+      //   }),r
       // ]).start(() => digiComeDown());
 
       // if (jumpObstacle) digiJump();
@@ -264,6 +458,11 @@ export default function App() {
 
     if (playHappyDigiSegment) {
       playHappySegment();
+      if (score === 8) {
+        setShowTrainingMenu(true);
+        setScore(0);
+        //setTraining1(true);
+      }
     }
 
     if (noSegment) {
@@ -319,6 +518,8 @@ export default function App() {
     cactusSpeed,
     jumpStep,
     score,
+    left,
+    bottom,
   ]);
 
   const moveCactus = async () => {
@@ -346,7 +547,7 @@ export default function App() {
         // } else {
         //   setCactusSpeed(cactusSpeed + random);
         // }
-        setCactusLocation(Dimensions.get("window").width + cactusSpeed * 2);
+        // setCactusLocation(Dimensions.get("window").width + cactusSpeed * 2);
         setScore(score + 1);
 
         setHold(true);
@@ -816,11 +1017,12 @@ export default function App() {
                           onPress={() => {
                             bottom.resetAnimation();
                             setHappyCounter(1);
-                            setCactusLocation(Dimensions.get("window").width);
-                            setCactusSpeed(10);
+                            //setCactusLocation(Dimensions.get("window").width);
+                            //setCactusSpeed(17);
                             setIsGameOver(false);
                             setTraining1(true);
                             setScore(0);
+                            animateCactus();
                           }}
                           title="Stats"
                           color="#000000a0"
@@ -851,13 +1053,19 @@ export default function App() {
                       <React.Fragment>
                         <TouchableWithoutFeedback
                           accessibilityRole="image"
-                          onPress={() => {
+                          onPressIn={() => {
+                            // console.log("not jumping " + bottom.__getValue());
                             if (isGameOver) {
                               setTraining1(false);
-                            } else if (!jumpObstacle) {
-                              setJumpObstacle(true);
-                              setjump(70);
+                            } else if (
+                              bottom.__getValue() >= -10 &&
+                              bottom.__getValue() <= 0
+                            ) {
                               animate();
+
+                              //setJumpObstacle(true);
+                              //setjump(70);
+                              // console.log("jump " + bottom.__getValue());
                             }
                           }}
                           //disabled={jumpObstacle ? true : false}
@@ -869,21 +1077,66 @@ export default function App() {
                             </Text>
                           </View>
                         </TouchableWithoutFeedback>
-                        {/* {isGameOver && (
-                          <TouchableOpacity onPress={() => setTraining1(false)}>
-                            <Text style={styles.gameOverText}>GAME OVER</Text>
-                            <Text style={styles.statsText3}>
+                        {isGameOver ? (
+                          <React.Fragment>
+                            <TouchableOpacity
+                              onPress={() => setTraining1(false)}
+                            >
+                              <Text style={styles.gameOverText}>GAME OVER</Text>
+                              {/* <Text style={styles.statsText3}>
                               Score: {score}
-                            </Text>
-                          </TouchableOpacity>
-                        )} */}
-                        <Animated.View style={animatedStyles}>
-                          <Image
-                            style={styles.jumpingSpot(jump)}
-                            source={jumpingSpite}
+                            </Text> */}
+                            </TouchableOpacity>
+                            <Animated.View style={animatedStyles}>
+                              <Image
+                                style={styles.jumpingSpot(jump)}
+                                source={jumpingSpite}
+                              />
+                            </Animated.View>
+                          </React.Fragment>
+                        ) : (
+                          <React.Fragment>
+                            <Animated.View style={animatedStyles}>
+                              <Image
+                                style={styles.jumpingSpot(jump)}
+                                source={jumpingSpite}
+                              />
+                            </Animated.View>
+                            <Animated.View style={movingCactus}>
+                              <Animated.Image
+                                style={styles.cactusObstacle(cactusLocation)}
+                                source={digiObstacle}
+                                placeholder={blurhash}
+                                contentFit="cover"
+                              />
+                            </Animated.View>
+                          </React.Fragment>
+                        )}
+                        {/* <Animated.View style={movingCactus1}>
+                          <Animated.Image
+                            style={styles.cactusObstacle(cactusLocation)}
+                            source={digiObstacle}
+                            placeholder={blurhash}
+                            contentFit="cover"
                           />
                         </Animated.View>
-                        {/* <Animated.View style={movingCactus}>
+                        <Animated.View style={movingCactus2}>
+                          <Animated.Image
+                            style={styles.cactusObstacle(cactusLocation)}
+                            source={digiObstacle}
+                            placeholder={blurhash}
+                            contentFit="cover"
+                          />
+                        </Animated.View>
+                        <Animated.View style={movingCactus3}>
+                          <Animated.Image
+                            style={styles.cactusObstacle(cactusLocation)}
+                            source={digiObstacle}
+                            placeholder={blurhash}
+                            contentFit="cover"
+                          />
+                        </Animated.View>
+                        <Animated.View style={movingCactus4}>
                           <Animated.Image
                             style={styles.cactusObstacle(cactusLocation)}
                             source={digiObstacle}
@@ -891,12 +1144,12 @@ export default function App() {
                             contentFit="cover"
                           />
                         </Animated.View> */}
-                        <Animated.Image
+                        {/* <Animated.Image
                           style={styles.cactusObstacle(cactusLocation)}
                           source={digiObstacle}
                           placeholder={blurhash}
                           contentFit="cover"
-                        />
+                        /> */}
                       </React.Fragment>
                     )}
                   </React.Fragment>
@@ -1169,11 +1422,11 @@ const styles = StyleSheet.create({
   }),
   cactusObstacle: (cactusLocation) => ({
     position: "absolute",
-    bottom: 30,
+    bottom: 50,
     left: cactusLocation,
     zIndex: 1,
     height: 45,
-    width: 35,
+    width: 1400,
   }),
   poopPlac1: (poopLocation) => ({
     left: poopLocation,
@@ -1322,7 +1575,7 @@ const styles = StyleSheet.create({
   },
   gameOverText: {
     paddingLeft: 60,
-    marginTop: -100,
+    marginTop: -110,
     position: "absolute",
     zIndex: 1,
     fontFamily: "ARCADE_N",
