@@ -137,7 +137,11 @@ export default function App() {
     new Animated.Value(Dimensions.get("window").width)
   ).current; // Initial value for opacity: 0
   let left = useRef(new Animated.Value(Dimensions.get("window").width)).current; // Initial value for opacity: 0
-  let bulletLocation = useRef(new Animated.Value(0)).current; // Initial value for opacity: 0
+  let bulletLocation = useRef(
+    new Animated.Value(
+      Dimensions.get("window").width - Dimensions.get("window").width
+    )
+  ).current; // Initial value for opacity: 0
 
   const [training1AnimationOver, setTraining1AnimationOver] = useState(false);
   const [taining1CPUchoice, setTaining1CPUchoice] = useState(0);
@@ -162,7 +166,7 @@ export default function App() {
       translateX: bulletLocation,
       width: 30,
       height: 30,
-      bottom: -70,
+      bottom: -170,
       //toValue: -200,
       //backgroundColor: "red",
     },
@@ -190,6 +194,21 @@ export default function App() {
     });
   };
 
+  const animateHit = () => {
+    Animated.sequence([
+      Animated.timing(bulletLocation, {
+        toValue: Dimensions.get("window").width,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setBulletChoice(false);
+      bulletLocation.setValue(0);
+
+      //setTaining1CPUchoice(Math.floor(Math.random() * 2));
+    });
+  };
+
   useEffect(() => {
     if (currentTime.getHours() >= 8 && currentTime.getHours() < 24) {
       setIsSleeping(false);
@@ -200,7 +219,9 @@ export default function App() {
     if (training1) {
       if (!isGameOver && !playHappyDigiSegment) {
         // console.log("bulletchoice: " + bulletChoice);
-        console.log("toporBottom: " + topOrBottom);
+        if (bulletChoice) {
+          animateHit();
+        }
       }
     }
 
@@ -293,6 +314,7 @@ export default function App() {
     bottom,
     bulletChoice,
     taining1CPUchoice,
+    bulletLocation,
   ]);
 
   const playNoSegment = async () => {
@@ -695,45 +717,73 @@ export default function App() {
                     )}
                     {training1 && (
                       <React.Fragment>
-                        <View style={styles.jumpingSpiteStyleColor}>
+                        <View style={styles.training1Container}>
                           <Text style={styles.playingScore}>
                             Score: {score}
                           </Text>
                         </View>
-                        <Animated.View style={animatedStyles}>
-                          <Image
-                            style={styles.jumpingSpot(jump)}
-                            source={walkRight1}
-                          />
-                          <Image
-                            style={styles.jumpingSpot2(jump)}
-                            source={walkLeft1}
-                          />
-                        </Animated.View>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setTopOrBottom(1);
-                          }}
-                          title="Stats"
-                          color="#000000a0"
-                        >
-                          <Image
-                            style={styles.training1ButtonsTop}
-                            source={selectionButton}
-                          />
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setTopOrBottom(0);
-                          }}
-                          title="Stats"
-                          color="#000000a0"
-                        >
-                          <Image
-                            style={styles.training1ButtonsBottom}
-                            source={selectionButton}
-                          />
-                        </TouchableOpacity>
+                        <View style={styles.training1Area}>
+                          <View style={styles.training1Column1}>
+                            <Animated.View style={animatedStyles}>
+                              <Image
+                                style={styles.jumpingSpot(jump)}
+                                source={walkRight1}
+                              />
+                              <Image
+                                style={styles.jumpingSpot2(jump)}
+                                source={walkLeft1}
+                              />
+                            </Animated.View>
+                          </View>
+                          {training1AnimationOver && !bulletChoice && (
+                            <View style={styles.training1AreaButtonColumn}>
+                              <View style={styles.training1AreaButtonRow}>
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    setTopOrBottom(1);
+                                    setBulletChoice(true);
+                                  }}
+                                  title="Stats"
+                                  color="#000000a0"
+                                >
+                                  <Image
+                                    style={styles.training1ButtonsTop}
+                                    source={selectionButton}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                              <View style={styles.training1AreaButtonRow}>
+                                <TouchableOpacity
+                                  onPress={() => {
+                                    setTopOrBottom(0);
+                                    setBulletChoice(true);
+                                  }}
+                                  title="Stats"
+                                  color="#000000a0"
+                                >
+                                  <Image
+                                    style={styles.training1ButtonsBottom}
+                                    source={selectionButton}
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                            </View>
+                          )}
+                          {bulletChoice && (
+                            <View style={styles.training1AreaButtonColumn}>
+                              <Animated.View style={animatedStyles2}>
+                                <Image
+                                  style={styles.bulletRight1}
+                                  source={bulletRight}
+                                />
+                                {/* <Image
+                                  style={styles.jumpingSpot2(jump)}
+                                  source={walkLeft1}
+                                /> */}
+                              </Animated.View>
+                            </View>
+                          )}
+                        </View>
                       </React.Fragment>
                     )}
                     {adventure && (
@@ -1141,6 +1191,10 @@ const styles = StyleSheet.create({
     //paddingLeft: Dimensions.get("window").width / 4.4,
     //paddingTop: 70,
     //paddingBottom: 80,
+    bottom: -60,
+    //backgroundColor: "red",
+    flexDirection: "row",
+    alignContent: "center",
     position: "relative",
     zIndex: 1,
     fontFamily: "ARCADE_N",
@@ -1178,20 +1232,22 @@ const styles = StyleSheet.create({
     height: 30,
     width: 30,
     //paddingTop: 0,
-    marginLeft: Dimensions.get("window").width / 3.5,
-    paddingBottom: 20,
-    position: "absolute",
+    //marginLeft: Dimensions.get("window").width / 3.5,
+    //paddingBottom: 20,
+    //position: "absolute",
     zIndex: 2,
-    //backgroundColor: "red",
-    marginTop: -60,
+    // backgroundColor: "red",
+    //marginTop: -60,
   },
   training1ButtonsTop: {
     height: 30,
     width: 30,
-    marginLeft: Dimensions.get("window").width / 3.5,
-    paddingBottom: 20,
-    marginTop: -120,
-    position: "absolute",
+    marginTop: -10,
+    marginBottom: 10,
+    //marginLeft: Dimensions.get("window").width / 3.5,
+    //paddingBottom: 20,
+    //marginTop: -120,
+    //position: "absolute",
     zIndex: 2,
     // backgroundColor: "red",
   },
@@ -1252,7 +1308,7 @@ const styles = StyleSheet.create({
   }),
 
   bulletRight1: {
-    left: Dimensions.get("window").width - 0.4 * Dimensions.get("window").width,
+    //left: Dimensions.get("window").width - Dimensions.get("window").width,
     bottom: 160,
   },
   bulletLeft1: {
@@ -1264,16 +1320,36 @@ const styles = StyleSheet.create({
 
   //   backgroundColor: "black",
   // },
-  jumpingSpiteStyleColor: {
+  training1Container: {
     //bottom: -70,
-    //flex: 1,
-    marginTop: 60,
-    marginBottom: 90,
+    flex: 1,
+    alignContent: "center",
+    // marginTop: 60,
+    // marginBottom: 90,
     //backgroundColor: "black",
     //marginBottom: Dimensions.get("window").height * 0.24,
     //width: Dimensions.get("window").width,
     //height: Dimensions.get("window").height / 4,
     // zIndex: 1,
+  },
+  training1Area: {
+    flexDirection: "row",
+    // backgroundColor: "red",
+  },
+  training1Column1: {
+    flexDirection: "column",
+    //== backgroundColor: "black",
+  },
+  training1AreaButtonColumn: {
+    flexDirection: "column",
+    marginBottom: 10,
+    paddingLeft: 10,
+    //backgroundColor: "red",
+  },
+  training1AreaButtonRow: {
+    flexDirection: "row",
+    marginBottom: 10,
+    paddingLeft: 10,
   },
 });
 
