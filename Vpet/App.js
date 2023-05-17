@@ -142,11 +142,15 @@ export default function App() {
       Dimensions.get("window").width - Dimensions.get("window").width
     )
   ).current; // Initial value for opacity: 0
+  let bulletLocation2 = useRef(
+    new Animated.Value(Dimensions.get("window").width - 100)
+  ).current; // Initial value for opacity: 0
 
   const [training1AnimationOver, setTraining1AnimationOver] = useState(false);
   const [taining1CPUchoice, setTaining1CPUchoice] = useState(0);
   const [bulletChoice, setBulletChoice] = useState(false);
   const [topOrBottom, setTopOrBottom] = useState(-1);
+  const [isHit, setIsHit] = useState(false);
 
   //let cactusAnimation = new Animated.Animated();
 
@@ -171,7 +175,29 @@ export default function App() {
       //backgroundColor: "red",
     },
   ];
+  let animatedStyles3 = [
+    {
+      translateX: left,
+      width: 100,
+      height: 100,
+      bottom: 0,
+      zIndex: 1,
+      //toValue: -200,
+      //backgroundColor: "red",
+    },
+  ];
 
+  let animatedStyles4 = [
+    {
+      translateX: bulletLocation2,
+      width: 100,
+      height: 100,
+      bottom: 0,
+      zIndex: 1,
+      //toValue: -200,
+      //backgroundColor: "red",
+    },
+  ];
   // let movingCactus = [
   //   {
   //     translateX: left,
@@ -197,15 +223,66 @@ export default function App() {
   const animateHit = () => {
     Animated.sequence([
       Animated.timing(bulletLocation, {
-        toValue: Dimensions.get("window").width,
+        toValue: Dimensions.get("window").width - 175,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      Animated.sequence([
+        Animated.timing(left, {
+          toValue: 20,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(left, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(left, {
+          toValue: 20,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(left, {
+          toValue: 0,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        Animated.timing(left, {
+          toValue: 10,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setBulletChoice(false);
+        bulletLocation.setValue(0);
+        left.setValue(10);
+        setTaining1CPUchoice(Math.floor(Math.random() * 2));
+        setScore(score + 1);
+      });
+
+      //setTaining1CPUchoice(Math.floor(Math.random() * 2));
+    });
+  };
+
+  const animateTie = () => {
+    Animated.parallel([
+      Animated.timing(bulletLocation, {
+        toValue: Dimensions.get("window").width / 5.5,
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(bulletLocation2, {
+        toValue: -50,
         duration: 1000,
         useNativeDriver: true,
       }),
     ]).start(() => {
       setBulletChoice(false);
       bulletLocation.setValue(0);
-
-      //setTaining1CPUchoice(Math.floor(Math.random() * 2));
+      bulletLocation2.setValue(30);
+      setTaining1CPUchoice(Math.floor(Math.random() * 2));
     });
   };
 
@@ -220,7 +297,16 @@ export default function App() {
       if (!isGameOver && !playHappyDigiSegment) {
         // console.log("bulletchoice: " + bulletChoice);
         if (bulletChoice) {
-          animateHit();
+          if (!isHit) {
+            animateTie();
+          } else {
+            animateHit();
+          }
+        }
+        if (score === 5) {
+          setTraining1(false);
+          setShowTrainingMenu(false);
+          setPlayHappyDigiSegment(true);
         }
       }
     }
@@ -250,7 +336,7 @@ export default function App() {
 
     if (playHappyDigiSegment) {
       playHappySegment();
-      if (score === 8) {
+      if (score === 5) {
         setShowTrainingMenu(true);
         setScore(0);
         //setTraining1(true);
@@ -729,10 +815,12 @@ export default function App() {
                                 style={styles.jumpingSpot(jump)}
                                 source={walkRight1}
                               />
-                              <Image
-                                style={styles.jumpingSpot2(jump)}
-                                source={walkLeft1}
-                              />
+                              <Animated.View style={animatedStyles3}>
+                                <Image
+                                  style={styles.jumpingSpot2(jump)}
+                                  source={walkLeft1}
+                                />
+                              </Animated.View>
                             </Animated.View>
                           </View>
                           {training1AnimationOver && !bulletChoice && (
@@ -740,7 +828,10 @@ export default function App() {
                               <View style={styles.training1AreaButtonRow}>
                                 <TouchableOpacity
                                   onPress={() => {
-                                    setTopOrBottom(1);
+                                    if (taining1CPUchoice === 1) {
+                                      setIsHit(false);
+                                    } else setIsHit(true);
+                                    //setTopOrBottom(1);
                                     setBulletChoice(true);
                                   }}
                                   title="Stats"
@@ -755,7 +846,10 @@ export default function App() {
                               <View style={styles.training1AreaButtonRow}>
                                 <TouchableOpacity
                                   onPress={() => {
-                                    setTopOrBottom(0);
+                                    // setTopOrBottom(0);
+                                    if (taining1CPUchoice === 0) {
+                                      setIsHit(false);
+                                    } else setIsHit(true);
                                     setBulletChoice(true);
                                   }}
                                   title="Stats"
@@ -770,18 +864,41 @@ export default function App() {
                             </View>
                           )}
                           {bulletChoice && (
-                            <View style={styles.training1AreaButtonColumn}>
-                              <Animated.View style={animatedStyles2}>
-                                <Image
-                                  style={styles.bulletRight1}
-                                  source={bulletRight}
-                                />
-                                {/* <Image
-                                  style={styles.jumpingSpot2(jump)}
-                                  source={walkLeft1}
-                                /> */}
-                              </Animated.View>
-                            </View>
+                            // <View style={styles.training1AreaButtonColumn}>
+                            <React.Fragment>
+                              {isHit ? (
+                                <React.Fragment>
+                                  <Animated.View style={animatedStyles2}>
+                                    <Image
+                                      style={styles.bulletRight1}
+                                      source={bulletRight}
+                                    />
+                                  </Animated.View>
+                                  {/* <Animated.View style={animatedStyles4}>
+                                    <Image
+                                      style={styles.bulletLeft1}
+                                      source={bulletLeft}
+                                    />
+                                  </Animated.View> */}
+                                </React.Fragment>
+                              ) : (
+                                <React.Fragment>
+                                  <Animated.View style={animatedStyles2}>
+                                    <Image
+                                      style={styles.bulletRight1}
+                                      source={bulletRight}
+                                    />
+                                  </Animated.View>
+                                  <Animated.View style={animatedStyles4}>
+                                    <Image
+                                      style={styles.bulletLeft1}
+                                      source={bulletLeft}
+                                    />
+                                  </Animated.View>
+                                </React.Fragment>
+                              )}
+                              {/* </View> */}
+                            </React.Fragment>
                           )}
                         </View>
                       </React.Fragment>
@@ -1313,7 +1430,7 @@ const styles = StyleSheet.create({
   },
   bulletLeft1: {
     left: Dimensions.get("window").width - 0.7 * Dimensions.get("window").width,
-    bottom: 70,
+    bottom: -10,
     //backgroundColor: "red",
   },
   // jumpingSpiteStyle: {
