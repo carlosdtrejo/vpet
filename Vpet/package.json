@@ -13,14 +13,20 @@
     "expo": "~48.0.6",
     "expo-image": "~1.0.0",
     "expo-screen-orientation": "^5.1.1",
+    "expo-sensors": "~12.1.1",
     "expo-status-bar": "~1.4.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-native": "0.71.3",
+    "react-native": "0.71.6",
+    "react-native-google-fit": "^0.19.1",
     "react-native-web": "~0.18.10"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "install": "^0.13.0",
+    "npm": "^9.6.6",
+    "react-native-accurate-step-counter": "^2.0.4",
+    "react-native-shake": "^5.3.2"
   },
   "private": true
 }
