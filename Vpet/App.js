@@ -287,10 +287,10 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (currentTime.getHours() >= 8 && currentTime.getHours() < 24) {
+    if (currentTime.getHours() >= 8 && currentTime.getHours() < 14) {
       setIsSleeping(false);
     } else {
-      setIsSleeping(false);
+      setIsSleeping(true);
     }
 
     if (training1) {
